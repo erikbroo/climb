@@ -1,5 +1,6 @@
-package de.coskunscastle.climb.game;
+package com.googlecode.climb.game;
 
+import com.googlecode.climb.R;
 import android.content.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import de.coskunscastle.climb.R;
 
 
 /**

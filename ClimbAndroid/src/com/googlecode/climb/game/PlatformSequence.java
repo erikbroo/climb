@@ -1,6 +1,6 @@
-package de.coskunscastle.climb.game;
+package com.googlecode.climb.game;
 
-import de.coskunscastle.climb.game.utils.RingList;
+import com.googlecode.climb.game.utils.RingList;
 
 
 /**

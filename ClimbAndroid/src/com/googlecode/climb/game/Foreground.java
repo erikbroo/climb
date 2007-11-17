@@ -1,3 +1,4 @@
+package com.googlecode.climb.game;
 // package de.coskunscastle.climb.game;
 //
 // import java.io.IOException;

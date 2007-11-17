@@ -1,4 +1,4 @@
-package de.coskunscastle.climb;
+package com.googlecode.climb;
 
 import java.util.Map;
 import android.content.Context;

@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package de.coskunscastle.climb;
+package com.googlecode.climb;
 
 public final class R {
     public static final class attr {

@@ -1,4 +1,4 @@
-package de.coskunscastle.climb.game.utils;
+package com.googlecode.climb.game.utils;
 
 /**
  * An array list of fixed size. There is only one method

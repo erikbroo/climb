@@ -1,13 +1,13 @@
-package de.coskunscastle.climb.game;
+package com.googlecode.climb.game;
 
+import com.googlecode.climb.R;
+import com.googlecode.climb.game.utils.Sprite;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import de.coskunscastle.climb.R;
-import de.coskunscastle.climb.game.utils.Sprite;
 
 
 final class Water
