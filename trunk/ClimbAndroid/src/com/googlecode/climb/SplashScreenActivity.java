@@ -1,4 +1,4 @@
-package de.coskunscastle.climb;
+package com.googlecode.climb;
 
 import android.app.Activity;
 import android.os.Bundle;

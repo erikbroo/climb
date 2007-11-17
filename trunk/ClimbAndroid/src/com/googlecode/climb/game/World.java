@@ -1,4 +1,4 @@
-package de.coskunscastle.climb.game;
+package com.googlecode.climb.game;
 
 import android.graphics.Canvas;
 

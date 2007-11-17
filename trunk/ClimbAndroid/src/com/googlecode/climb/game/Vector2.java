@@ -1,4 +1,4 @@
-package de.coskunscastle.climb.game;
+package com.googlecode.climb.game;
 
 /**
  * This class represents a vector in two separate coordinate systems: the world

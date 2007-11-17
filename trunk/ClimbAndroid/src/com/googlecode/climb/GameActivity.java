@@ -1,9 +1,9 @@
-package de.coskunscastle.climb;
+package com.googlecode.climb;
 
+import com.googlecode.climb.game.Game;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Window;
-import de.coskunscastle.climb.game.Game;
 
 
 /**

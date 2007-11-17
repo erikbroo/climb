@@ -1,7 +1,8 @@
-package de.coskunscastle.climb.game;
+package com.googlecode.climb.game;
 
 import java.util.Map;
 import java.util.Random;
+import com.googlecode.climb.GameActivity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,7 +11,6 @@ import android.graphics.Paint.Style;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
-import de.coskunscastle.climb.GameActivity;
 
 
 /**
