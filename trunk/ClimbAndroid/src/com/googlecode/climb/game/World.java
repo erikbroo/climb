@@ -30,10 +30,10 @@ final class World
     {
         this.yPosition = 0;
 
-        this.water = new Water(game, this.yPosition - 10);
+        this.water = new Water(game, this, this.yPosition - 10);
 
         this.playGround = new Playground(game, this);
-        this.spot = new Spot(game, this, 50, 50);
+        this.spot = new Spot(game, this, 50, PlatformSequence.LOWEST_PLATFORM_YPOS + 1);
 
         // this.backgroundManager = new LayerManager();
         // this.foregroundManagerLeft = new LayerManager();
@@ -72,24 +72,26 @@ final class World
         this.water.doUpdate();
 
         final int spotScreenY = this.spot.getPosition().getVirtualScreenY();
-        if (spotScreenY < 60) {
+        if (spotScreenY < 40) {
             viewup(6);
-        } else if (spotScreenY < 80) {
+        } else if (spotScreenY < 60) {
             viewup(5);
-        } else if (spotScreenY < 100) {
+        } else if (spotScreenY < 80) {
             viewup(4);
-        } else if (spotScreenY < 120) {
+        } else if (spotScreenY < 100) {
             viewup(3);
-        } else if (spotScreenY < 140) {
+        } else if (spotScreenY < 120) {
             viewup(2);
-        } else if (spotScreenY < 180) {
+        } else if (spotScreenY < 140) {
             viewup(1);
         }
+
+        this.playGround.doUpdate();
     }
 
     final void viewup(int i)
     {
-        this.yPosition -= i;
+        this.yPosition += i;
     }
 
     final int getViewY()

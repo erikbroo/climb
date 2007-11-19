@@ -20,13 +20,15 @@ public class RingList<E>
     {
         this.size = size;
         this.list = new Object[size];
-        this.currentStartIndex = size - 1;
+        this.currentStartIndex = 0;
     }
 
     public void add(E element)
     {
-        this.currentStartIndex += 1;
-        this.currentStartIndex %= this.list.length;
+        this.currentStartIndex -= 1;
+        if (this.currentStartIndex == -1) {
+            this.currentStartIndex = this.size - 1;
+        }
 
         this.list[this.currentStartIndex] = element;
     }

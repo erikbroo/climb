@@ -2,6 +2,9 @@ package com.googlecode.climb.game;
 
 import java.util.ArrayList;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
 
 
 final class MessagePopup
@@ -10,9 +13,21 @@ final class MessagePopup
 
     private final static int BOX_HEIGHT = 20;
 
-    private final static int BOX_XPOS = (World.WORLD_VIEW_WIDTH - MessagePopup.BOX_WIDTH) / 2;
+    private final static int BOX_XPOS = (Game.VIRTUAL_CANVAS_WIDTH - MessagePopup.BOX_WIDTH) / 2;
 
     private final static int BOX_YPOS = 50;
+
+    private final Paint box_border_paint = new Paint();
+    {
+        this.box_border_paint.setColor(Color.WHITE);
+        this.box_border_paint.setStyle(Style.STROKE);
+    }
+
+    private final Paint box_fill_paint = new Paint();
+    {
+        this.box_fill_paint.setColor(Color.argb(200, 50, 50, 50));
+        this.box_fill_paint.setStyle(Style.STROKE);
+    }
 
     private final ArrayList<Message> messageQueue = new ArrayList<Message>(10);
 
@@ -63,8 +78,8 @@ final class MessagePopup
     final void registerComboString(String msg)
     {
         this.comboString = msg;
-        this.comboY = this.spot.getYPosition();
-        this.comboX = this.spot.getXPosition();
+        this.comboY = this.spot.getPosition().getVirtualScreenY();
+        this.comboX = this.spot.getPosition().getVirtualScreenX();
         this.comboShowedTime = System.currentTimeMillis();
     }
 
@@ -75,39 +90,39 @@ final class MessagePopup
 
     final void doDraw(Canvas canvas)
     {
-        if (this.pointAdds != -1) {
-            g.setColor(20, 140, 250);
-            g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
-                    Font.SIZE_MEDIUM));
-            g.drawString(this.pointAdds + "", 66, 27 - this.pointAddsAt,
-                    Graphics.TOP | Graphics.RIGHT);
-            this.pointAddsAt += 2;
-            if (27 - this.pointAddsAt <= 7) {
-                this.pointAdds = -1;
-            }
-        }
-
-        if (this.comboString != null) {
-            final int y = this.world.calculateViewPosition(this.comboY);
-
-            g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
-                    Font.SIZE_SMALL));
-            g.setColor(30, 80, 1);
-            g.drawString(this.comboString, this.comboX + 2, y + 12,
-                    Graphics.TOP | Graphics.HCENTER);
-            g.drawString(this.comboString, this.comboX - 2, y + 12,
-                    Graphics.TOP | Graphics.HCENTER);
-            g.drawString(this.comboString, this.comboX + 2, y + 8, Graphics.TOP
-                    | Graphics.HCENTER);
-            g.drawString(this.comboString, this.comboX - 2, y + 8, Graphics.TOP
-                    | Graphics.HCENTER);
-            g.setColor(250, 180, 40);
-            g.drawString(this.comboString, this.comboX, y + 10, Graphics.TOP
-                    | Graphics.HCENTER);
-            if (System.currentTimeMillis() - this.comboShowedTime >= 500) {
-                this.comboString = null;
-            }
-        }
+        // if (this.pointAdds != -1) {
+        // g.setColor(20, 140, 250);
+        // g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
+        // Font.SIZE_MEDIUM));
+        // g.drawString(this.pointAdds + "", 66, 27 - this.pointAddsAt,
+        // Graphics.TOP | Graphics.RIGHT);
+        // this.pointAddsAt += 2;
+        // if (27 - this.pointAddsAt <= 7) {
+        // this.pointAdds = -1;
+        // }
+        // }
+        //
+        // if (this.comboString != null) {
+        // final int y = this.world.calculateViewPosition(this.comboY);
+        //
+        // g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
+        // Font.SIZE_SMALL));
+        // g.setColor(30, 80, 1);
+        // g.drawString(this.comboString, this.comboX + 2, y + 12,
+        // Graphics.TOP | Graphics.HCENTER);
+        // g.drawString(this.comboString, this.comboX - 2, y + 12,
+        // Graphics.TOP | Graphics.HCENTER);
+        // g.drawString(this.comboString, this.comboX + 2, y + 8, Graphics.TOP
+        // | Graphics.HCENTER);
+        // g.drawString(this.comboString, this.comboX - 2, y + 8, Graphics.TOP
+        // | Graphics.HCENTER);
+        // g.setColor(250, 180, 40);
+        // g.drawString(this.comboString, this.comboX, y + 10, Graphics.TOP
+        // | Graphics.HCENTER);
+        // if (System.currentTimeMillis() - this.comboShowedTime >= 500) {
+        // this.comboString = null;
+        // }
+        // }
 
         if (this.messageQueue.isEmpty()) {
             return;
@@ -121,31 +136,32 @@ final class MessagePopup
         if (this.showedTime == 0L) {
             this.showedTime = System.currentTimeMillis();
         }
-        g.drawRGB(MessagePopup.ALPHA_BOX, 0, MessagePopup.BOX_WIDTH,
-                MessagePopup.BOX_XPOS, MessagePopup.BOX_YPOS,
-                MessagePopup.BOX_WIDTH, MessagePopup.BOX_HEIGHT, true);
-        g.setColor(0xFFFFFF);
-        g.drawRect(30, 50, 116, 20);
-        if (this.showedCount % 2 != 0) {
-            if ((int) (System.currentTimeMillis() - this.showedTime) > 70) {
-                this.showedTime = 0;
-                this.showedCount += 1;
-            } else {
-                return;
-            }
-        }
-        g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
-                Font.SIZE_MEDIUM));
-        final String s = ((Message) this.messageQueue.firstElement()).message;
-        final int c = ((Message) this.messageQueue.firstElement()).color;
-        g.setColor(0x400505);
-        g.drawString(s, 87, 52, Graphics.HCENTER | Graphics.TOP);
-        g.setColor(c);
-        g.drawString(s, 88, 53, Graphics.HCENTER | Graphics.TOP);
-        if ((int) (System.currentTimeMillis() - this.showedTime) > 1000) {
-            this.showedTime = 0;
-            this.showedCount += 1;
-        }
+        // g.drawRGB(MessagePopup.ALPHA_BOX, 0, MessagePopup.BOX_WIDTH,
+        // MessagePopup.BOX_XPOS, MessagePopup.BOX_YPOS,
+        // MessagePopup.BOX_WIDTH, MessagePopup.BOX_HEIGHT, true);
+        // g.setColor(0xFFFFFF);
+        // g.drawRect(30, 50, 116, 20);
+        // if (this.showedCount % 2 != 0) {
+        // if ((int) (System.currentTimeMillis() - this.showedTime) > 70) {
+        // this.showedTime = 0;
+        // this.showedCount += 1;
+        // } else {
+        // return;
+        // }
+        // }
+        // g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
+        // Font.SIZE_MEDIUM));
+        // final String s = ((Message)
+        // this.messageQueue.firstElement()).message;
+        // final int c = ((Message) this.messageQueue.firstElement()).color;
+        // g.setColor(0x400505);
+        // g.drawString(s, 87, 52, Graphics.HCENTER | Graphics.TOP);
+        // g.setColor(c);
+        // g.drawString(s, 88, 53, Graphics.HCENTER | Graphics.TOP);
+        // if ((int) (System.currentTimeMillis() - this.showedTime) > 1000) {
+        // this.showedTime = 0;
+        // this.showedCount += 1;
+        // }
     }
 
     private static class Message

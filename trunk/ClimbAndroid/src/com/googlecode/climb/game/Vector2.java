@@ -23,6 +23,10 @@ public class Vector2
     {
         this.world_x = world_x;
         this.world_y = world_y;
+
+        if (world == null) {
+            throw new IllegalArgumentException("world must not be null");
+        }
         this.world = world;
     }
 

@@ -6,10 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -33,7 +33,9 @@ public class SplashScreenView extends View
     {
         this.textPaint.setARGB(255, 0, 0, 0);
         this.textPaint.setTextAlign(Align.CENTER);
-        this.textPaint.setTextSize(18);
+        this.textPaint.setTextSize(16);
+        this.textPaint.setTypeface(Typeface.create(Typeface.SANS_SERIF,
+                Typeface.BOLD));
     }
 
     boolean first = true;
@@ -90,12 +92,13 @@ public class SplashScreenView extends View
                     R.string.app_developer);
             canvas.drawText(appDeveloper, this.viewSize.width() / 2,
                     this.viewSize.height() / 2 - 10, this.textPaint);
-            canvas.drawText("presents", this.viewSize.width() / 2,
-                    this.viewSize.height() / 2 + 10, this.textPaint);
+            canvas.drawText("PRESENTS", this.viewSize.width() / 2,
+                    this.viewSize.height() / 2 + 15, this.textPaint);
         } else {
-            final String appName = getResources().getString(R.string.app_name);
-            canvas.drawText(appName, this.viewSize.width() / 2, this.viewSize
-                    .height() / 2, this.textPaint);
+            final String appName = getResources().getString(R.string.app_name)
+                    + " ON ANDROID";
+            canvas.drawText(appName, this.viewSize.width() / 2,
+                    this.viewSize.height() / 2, this.textPaint);
         }
     }
 
@@ -123,7 +126,7 @@ public class SplashScreenView extends View
      */
     void doSplash()
     {
-        Log.v(SplashScreenView.LOG_TAG, "begin doSplash()");
+        // Log.v(SplashScreenView.LOG_TAG, "begin doSplash()");
         int textColor = 0;
         int animationStep = 5;
 

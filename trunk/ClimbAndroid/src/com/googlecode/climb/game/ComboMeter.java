@@ -1,6 +1,11 @@
 package com.googlecode.climb.game;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Typeface;
+import android.graphics.Paint.Style;
 
 
 /**
@@ -33,6 +38,42 @@ final class ComboMeter
     private final static byte LANDED = 10;
 
     private final static byte COLLIDED = 100;
+
+    private final Typeface monospace_plain_font = Typeface.MONOSPACE;
+
+    private final Typeface monospace_bold_font = Typeface.create(
+            Typeface.MONOSPACE, Typeface.BOLD);
+
+    private final Paint text_paint = new Paint();
+    {
+        this.text_paint.setColor(Color.argb(255, 250, 180, 40));
+        this.text_paint.setTypeface(this.monospace_plain_font);
+        this.text_paint.setTextSize(10);
+    }
+
+    private final Paint bar_border_paint = new Paint();
+    {
+        this.bar_border_paint.setColor(Color.WHITE);
+        this.bar_border_paint.setStyle(Style.STROKE);
+    }
+
+    private final Paint bar_empty_paint = new Paint();
+    {
+        this.bar_empty_paint.setColor(Color.BLACK);
+        this.bar_empty_paint.setStyle(Style.FILL);
+    }
+
+    private final Paint bar_filled_paint = new Paint();
+    {
+        this.bar_filled_paint.setColor(Color.GREEN);
+        this.bar_filled_paint.setStyle(Style.FILL);
+    }
+
+    private final RectF bar_empty_rect = new RectF(75, 5, 115, 10);
+
+    private final RectF bar_filled_rect = new RectF(76, 5, 76, 10);
+
+    // g.fillRoundRect(75, 5, 40, 5, 10, 10);
 
     /*
      * Some circular lists for events and platforms:
@@ -479,33 +520,29 @@ final class ComboMeter
 
     final void doDraw(Canvas canvas)
     {
-        // Bar:
-        g.setColor(0x010101);
-        g.fillRoundRect(75, 5, 40, 5, 10, 10);
-        g.setColor(0xD0D0D0);
-        g.drawRoundRect(75, 5, 40, 5, 10, 10);
+        // BAR:
+        canvas.drawRoundRect(this.bar_empty_rect, 1, 1, this.bar_empty_paint);
+        if (this.comboBarLength > 0) {
+            this.bar_filled_rect.right = this.bar_filled_rect.left
+                    + this.comboBarLength - 2;
+            canvas.drawRoundRect(this.bar_filled_rect, 1, 1,
+                    this.bar_filled_paint);
+            // g.fillRoundRect(76, 5, this.comboBarLength - 2, 5, 10, 10);
+        }
+        canvas.drawRoundRect(this.bar_empty_rect, 1, 1, this.bar_border_paint);
 
-        // Combo-Multi:
-        g.setColor(250, 180, 40);
+        // Combo-Multiplicator:
+        this.text_paint.setColor(Color.argb(255, 250, 180, 40));
+        this.text_paint.setTypeface(this.monospace_plain_font);
         int jumps = this.comboMultiplicator;
-        g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN,
-                Font.SIZE_SMALL));
         if (this.multiBlinkNTimes > 0) {
             if (this.multiBlinkNTimes % 3 == 0) {
-                g.setColor(250, 40, 100);
+                this.text_paint.setColor(Color.argb(255, 250, 40, 100));
             }
             jumps = this.multiBlinkWith;
-            g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
-                    Font.SIZE_SMALL));
+            this.text_paint.setTypeface(this.monospace_bold_font);
         }
-        g.drawString("x" + jumps, 89, 13, Graphics.TOP | Graphics.LEFT);
-
-        g.setColor(250, 180, 40);
-        if (this.comboBarLength > 0) {
-            g.fillRoundRect(76, 5, this.comboBarLength - 2, 5, 10, 10);
-            g.setColor(0xD0D0D0);
-            g.drawRoundRect(75, 5, 40, 5, 10, 10);
-        }
+        canvas.drawText("x" + jumps, 89, 13, this.bar_border_paint);
     }
 
     final void fillComboBar()
@@ -552,9 +589,9 @@ final class ComboMeter
         this.comboMultiplicator = 0;
     }
 
-    final void doUpdate(final long thisUpdate)
+    final void doUpdate(long thisUpdate)
     {
-        thisUpdate = thisUpdate / 1000; // todo
+        thisUpdate = thisUpdate / 100000; // nanosec to milisec
 
         if (thisUpdate - this.lastUpdate > 200) { // 200 msec
             this.lastUpdate += 200;

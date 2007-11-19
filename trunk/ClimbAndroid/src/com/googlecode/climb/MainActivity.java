@@ -1,6 +1,5 @@
 package com.googlecode.climb;
 
-import com.googlecode.climb.game.Game;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +18,11 @@ public class MainActivity extends Activity
      * Subactivity request code for the game.
      */
     private final static int SUBACT_GAME = 1;
+
+    /**
+     * Subactivity request code for settings.
+     */
+    private static final int SUBACT_SETTINGS = 2;
 
     /**
      * Called when the activity is first created.
@@ -82,8 +86,18 @@ public class MainActivity extends Activity
     private void startGame()
     {
         final Intent gameIntent = new Intent();
-        gameIntent.setClass(this, Game.class);
+        gameIntent.setClass(this, GameActivity.class);
         startSubActivity(gameIntent, MainActivity.SUBACT_GAME);
+    }
+
+    /**
+     * Starts the settings subactivity.
+     */
+    private void startSettings()
+    {
+        final Intent settingsIntent = new Intent();
+        settingsIntent.setClass(this, SettingsActivity.class);
+        startSubActivity(settingsIntent, MainActivity.SUBACT_SETTINGS);
     }
 
     /**
@@ -100,8 +114,12 @@ public class MainActivity extends Activity
     public void onActivityResult(int requestCode, int resultCode, String data,
             Bundle extras)
     {
-        if (requestCode == MainActivity.SUBACT_GAME) {
-            startHighscore();
+        switch (requestCode) {
+            case SUBACT_GAME:
+                startHighscore();
+                break;
+            default:
+                break;
         }
     }
 
@@ -120,6 +138,9 @@ public class MainActivity extends Activity
             switch (this.id) {
                 case R.string.menu_label_newgame:
                     startGame();
+                    break;
+                case R.string.menu_label_settings:
+                    startSettings();
                     break;
                 case R.string.menu_label_close:
                     MainActivity.this.finish();

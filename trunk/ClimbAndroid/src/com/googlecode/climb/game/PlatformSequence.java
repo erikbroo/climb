@@ -20,16 +20,19 @@ final class PlatformSequence
     final static int PLATFORM_HEIGHT = 10;
 
     /**
-     * Visible platform count is view_height / platform_distance.
+     * Visible platform count is view_height / platform_distance. We are adding
+     * additional 3 platforms here: they will not be visible, but be below the
+     * visible view (this way the player can try to save his life when falling
+     * below the visible view).
      */
     final static int VISIBLE_PLATFORM_COUNT = Game.VIRTUAL_CANVAS_HEIGHT
-            / (PlatformSequence.PLATFORM_DISTANCE) + 1;
+            / (PlatformSequence.PLATFORM_DISTANCE) + 5;
 
     /**
      * World coordinate system origin is the lower left corner. The initial
-     * lowest platform yPos is 10.
+     * lowest platform yPos is 30.
      */
-    final static int LOWEST_PLATFORM_YPOS = 10;
+    final static int LOWEST_PLATFORM_YPOS = 30;
 
     private final World world;
 
@@ -57,9 +60,9 @@ final class PlatformSequence
 
     final Platform getPlatform(int index)
     {
-        if ((index < 0) || (index >= this.topmostVisiblePlatform)) {
+        if ((index < 0) || (index >= this.platformList.getSize())) {
             throw new IllegalArgumentException("Index must be in the interval [0,"
-                    + this.topmostVisiblePlatform + "]: " + index);
+                    + (this.platformList.getSize() - 1) + "]: " + index);
         }
 
         return this.platformList.get(index);
@@ -79,9 +82,13 @@ final class PlatformSequence
     private final void setHighestVisiblePlatform(int platform)
     {
         if (platform <= this.topmostVisiblePlatform) {
-            throw new IllegalArgumentException("new highest < previous highest: "
-                    + platform + " < " + this.topmostVisiblePlatform);
+            return;
         }
+
+        // if (platform < this.topmostVisiblePlatform) {
+        // throw new IllegalArgumentException("new highest < previous highest: "
+        // + platform + " < " + this.topmostVisiblePlatform);
+        // }
 
         while (this.topmostVisiblePlatform < platform) {
             this.topmostVisiblePlatform += 1;
@@ -110,5 +117,71 @@ final class PlatformSequence
     final int visiblePlatformCount()
     {
         return this.platformList.getSize();
+    }
+
+    /**
+     * @param spot
+     * @return
+     */
+    final int getCollidingPlatform(Spot spot)
+    {
+        final int spotX = spot.getPosition().getWorldX();
+        final int spotY = spot.getPosition().getWorldY();
+        final int spotYSpeed = spot.getYSpeed();
+
+        final Platform lowerPlatform = lowerPlatform(spotY);
+        if (lowerPlatform == null) {
+            return -1;
+        }
+
+        final int platformWidth = lowerPlatform.getWidth();
+        final int platformHeight = lowerPlatform.getHeight();
+        final int platformX = lowerPlatform.getPosition().getWorldX();
+        final int platformY = lowerPlatform.getPosition().getWorldY();
+
+        if (spotY == platformY) {
+
+            if ((spotX >= platformX - 1)
+                    && (spotX <= platformX + platformWidth + 1)) {
+                return lowerPlatform.getAbsoluteIndex();
+            }
+        }
+        if ((spotY > platformY) && (spotY + spotYSpeed < platformY)) {
+            if ((spotX >= platformX) && (spotX <= platformX + platformWidth)) {
+                spot.setYSpeed(platformY - spotY);
+                return -1; // collision will happen next frame
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Returns the lower platform nearest to the specified y-position.
+     * 
+     * @param spotY
+     * @return
+     */
+    private final Platform lowerPlatform(int y)
+    {
+        int topmostPlatformYpos = PlatformSequence.LOWEST_PLATFORM_YPOS
+                + (this.topmostVisiblePlatform * PlatformSequence.PLATFORM_DISTANCE);
+
+        int index = 0;
+        while (topmostPlatformYpos > y) {
+            topmostPlatformYpos -= PlatformSequence.PLATFORM_DISTANCE;
+            index += 1;
+        }
+
+        // if (index >= PlatformSequence.VISIBLE_PLATFORM_COUNT) {
+        // throw new IllegalStateException("Visible platform index >= visible
+        // platform count: "
+        // + index + ">=" + PlatformSequence.VISIBLE_PLATFORM_COUNT);
+        // }
+        if (index >= PlatformSequence.VISIBLE_PLATFORM_COUNT) {
+            return null;
+        }
+
+        return this.platformList.get(index);
     }
 }
