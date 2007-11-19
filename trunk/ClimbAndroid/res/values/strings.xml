@@ -14,4 +14,11 @@
     <string name="settings_button_label_right">RIGHT</string>
     <string name="settings_button_label_left">LEFT</string>
     <string name="settings_button_label_press">PRESS A KEY</string>
+    
+    <string name="credits">Programming and graphics: Fatih Coskun
+        \nSpecial Thanks to: Hakan Durmaz\n
+        \nThis game is under development. Changes in future versions are very likely\n
+        \nHomepage: http://climb.googlecode.com/
+        \nE-Mail: fatih@coskuns-castle.de
+    </string>
 </resources>
