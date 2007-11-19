@@ -1,13 +1,13 @@
 package com.googlecode.climb.game;
 
-import com.googlecode.climb.R;
-import com.googlecode.climb.game.utils.Sprite;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import com.googlecode.climb.R;
+import com.googlecode.climb.game.utils.Sprite;
 
 
 final class Water
@@ -26,8 +26,6 @@ final class Water
 
     private final Sprite waveSprite;
 
-    private boolean waveToggle;
-
     private final Paint waterPaint = new Paint();
     {
         this.waterPaint.setStyle(Style.FILL);
@@ -35,10 +33,14 @@ final class Water
         this.waterPaint.setAlpha(125);
     }
 
-    Water(Game game, int initialAbsoluteYPosition)
+    private int waveToggle;
+
+    private boolean waterRiseToggle;
+
+    Water(Game game, World world, int initialAbsoluteYPosition)
     {
-        this.world = game.world;
-        this.position = new Vector2(0, initialAbsoluteYPosition, game.world);
+        this.world = world;
+        this.position = new Vector2(0, initialAbsoluteYPosition, world);
         final Bitmap waveBitmap = BitmapFactory.decodeResource(
                 game.getResources(), R.drawable.waterwaves);
         this.waveSprite = new Sprite(waveBitmap, 176, 5);
@@ -47,13 +49,16 @@ final class Water
     final void doUpdate()
     {
         final int screenY = this.position.getVirtualScreenY();
-        if (this.position.getWorldY() > this.world.getViewY() + 15) {
+        if (this.position.getWorldY() < this.world.getViewY() - 15) {
             this.position.setWorldY(this.world.getViewY() - 10);
             return;
         }
 
         // water is rising depending on some factors:
-        this.position.add(0, 1);
+        this.waterRiseToggle = !this.waterRiseToggle;
+        if (this.waterRiseToggle) {
+            this.position.add(0, 1);
+        }
         this.position.add(0, this.waterSpeedLevel);
         this.waterSpeedMultiToggle = !this.waterSpeedMultiToggle;
         if (this.waterSpeedMultiToggle) {
@@ -69,8 +74,9 @@ final class Water
         if (screenY <= 208) {
             this.waveSprite.setPosition(0, screenY);
             this.waveSprite.doDraw(canvas);
-            this.waveToggle = !this.waveToggle;
-            if (this.waveToggle) {
+            this.waveToggle += 1;
+            this.waveToggle %= 5;
+            if (this.waveToggle == 0) {
                 this.waveSprite.nextFrame();
             }
         }

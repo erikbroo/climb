@@ -1,6 +1,5 @@
 package com.googlecode.climb.game;
 
-import com.googlecode.climb.R;
 import android.content.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import com.googlecode.climb.R;
 
 
 /**
@@ -82,7 +82,8 @@ final class Playground
             } else if (width == 144) {
                 canvas.drawBitmap(this.platform_full_image, xPos, yPos, null);
             } else {
-                throw new IllegalStateException("BUG");
+                throw new IllegalStateException("invalid platform width: "
+                        + width);
             }
 
             final int absolutePlatformIndex = platform.getAbsoluteIndex();
@@ -108,6 +109,11 @@ final class Playground
         }
     }
 
+    final void doUpdate()
+    {
+        this.platformSequence.updateWorldview(this.world.getViewY());
+    }
+
     /**
      * Checks whether spot collides with a platform in this frame. Returns the
      * platform's absolute index, if a collision is detected.
@@ -117,35 +123,7 @@ final class Playground
      */
     int checkCollision(Spot spot)
     {
-        final int spotX = spot.getPosition().getWorldX();
-        final int spotY = spot.getPosition().getWorldY();
-        final int spotYSpeed = spot.getYSpeed();
-
-        for (int i = 0; i < this.platformSequence.visiblePlatformCount(); i++) {
-
-            final Platform platform = this.platformSequence.getPlatform(i);
-            final int platformWidth = platform.getWidth();
-            final int platformHeight = platform.getHeight();
-            final int platformX = platform.getPosition().getWorldX();
-            final int platformY = platform.getPosition().getWorldY();
-
-            if (spotY == platformY) {
-
-                if ((spotX >= platformX)
-                        && (spotX <= platformX + platformWidth)) {
-                    return platform.getAbsoluteIndex();
-                }
-            }
-            if ((spotY > platformY) && (spotY + spotYSpeed < platformY)) {
-                if ((spotX >= platformX)
-                        && (spotX <= platformX + platformWidth)) {
-                    spot.setYSpeed(platformY - spotY);
-                    return -1; // collision will happen next frame
-                }
-            }
-        }
-
-        return -1;
+        return this.platformSequence.getCollidingPlatform(spot);
     }
 
 }

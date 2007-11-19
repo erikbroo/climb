@@ -19,8 +19,8 @@ class Platform
     private Platform(Vector2 position, int width, int height, int absoluteIndex)
     {
         this.position = position;
-        this.width = absoluteIndex;
-        this.height = absoluteIndex;
+        this.width = width;
+        this.height = height;
         this.absoluteIndex = absoluteIndex;
     }
 
@@ -55,7 +55,8 @@ class Platform
         } else if ((randomAttribute & 64) != 0) {
             width = 70; // width of long platform
         } else {
-            throw new IllegalStateException("BUG");
+            throw new IllegalStateException("invalid random platform attribute: "
+                    + randomAttribute);
         }
 
         // every platform has the same height
