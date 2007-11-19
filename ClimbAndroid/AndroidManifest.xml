@@ -14,5 +14,7 @@
         <activity class=".GameActivity" />
         
         <activity class=".SettingsActivity" />
+        
+        <activity class=".CreditsActivity" />
     </application>
 </manifest> 

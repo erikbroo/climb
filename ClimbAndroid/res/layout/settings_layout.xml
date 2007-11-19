@@ -11,17 +11,17 @@
             android:text="Key Settings:"/>
   
     <Button id="@+id/button_jump" 
-            android:layout_width="75px" 
+            android:layout_width="100px" 
             android:layout_height="wrap_content" 
             android:text="@string/settings_button_label_jump" />
             
     <Button id="@+id/button_left" 
-            android:layout_width="75px" 
+            android:layout_width="100px" 
             android:layout_height="wrap_content" 
             android:text="@string/settings_button_label_left" />
             
     <Button id="@+id/button_right" 
-            android:layout_width="75px" 
+            android:layout_width="100px" 
             android:layout_height="wrap_content" 
             android:text="@string/settings_button_label_right" />
 

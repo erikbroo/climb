@@ -25,6 +25,11 @@ public class MainActivity extends Activity
     private static final int SUBACT_SETTINGS = 2;
 
     /**
+     * Subactivity request code for credits.
+     */
+    private static final int SUBACT_CREDITS = 3;
+
+    /**
      * Called when the activity is first created.
      */
     @Override
@@ -101,6 +106,16 @@ public class MainActivity extends Activity
     }
 
     /**
+     * Starts the credits as a subactivity.
+     */
+    private void startCredits()
+    {
+        final Intent intent = new Intent();
+        intent.setClass(this, CreditsActivity.class);
+        startSubActivity(intent, MainActivity.SUBACT_CREDITS);
+    }
+
+    /**
      * Starts the highscore as a subactivity.
      */
     private void startHighscore()
@@ -141,6 +156,9 @@ public class MainActivity extends Activity
                     break;
                 case R.string.menu_label_settings:
                     startSettings();
+                    break;
+                case R.string.menu_label_credits:
+                    startCredits();
                     break;
                 case R.string.menu_label_close:
                     MainActivity.this.finish();
