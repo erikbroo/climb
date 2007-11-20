@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import com.googlecode.climb.R;
 import com.googlecode.climb.game.utils.Sprite;
+import com.googlecode.climb.game.utils.Vector2;
 
 
 /**
@@ -45,7 +46,7 @@ final class Spot
 
     private final Game game;
 
-    private final World world;
+    // private final World world;
 
     private int accelerateDirection;
 
@@ -67,11 +68,13 @@ final class Spot
 
     private final SpotAnimation spotAnimation;
 
-    Spot(Game game, World world, int xPosition, int yPosition)
+    private final PlatformLayer platformLayer;
+
+    Spot(Game game, PlatformLayer platformLayer, int xPosition, int yPosition)
     {
         this.game = game;
-        this.world = world;
-        this.position = new Vector2(xPosition, yPosition, world);
+        this.platformLayer = platformLayer;
+        this.position = new Vector2(xPosition, yPosition, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, platformLayer);
         final Bitmap spotBitmap = BitmapFactory.decodeResource(
                 game.getResources(), R.drawable.spot);
         this.spotSprite = new Sprite(spotBitmap, Spot.SPOT_DIAMETER, Spot.SPOT_DIAMETER);
@@ -92,7 +95,7 @@ final class Spot
 
         final int spotX = this.position.getVirtualScreenX() - Spot.SPOT_RADIUS;
         final int spotY = this.position.getVirtualScreenY()
-                - Spot.SPOT_DIAMETER;
+                - Spot.SPOT_DIAMETER + 2;
 
         final int tale1X = this.tale1XPosition + Spot.SPOT_RADIUS;
         final int tale1Y = this.tale1YPosition + Spot.SPOT_RADIUS;
@@ -288,7 +291,7 @@ final class Spot
     private final void sideCollisionDetection()
     {
         int xSpeed_normalized = this.xSpeed / 10;
-        final int xPos = this.position.getWorldX();
+        final int xPos = this.position.getLayerX();
         if (xSpeed_normalized > 10) {
             xSpeed_normalized = 10;
         } else if (xSpeed_normalized < -10) {
@@ -297,7 +300,7 @@ final class Spot
 
         if (xSpeed_normalized < 0) {
             if (xSpeed_normalized + xPos - 8 < 17) {
-                this.position.setWorldX(17 + 6);
+                this.position.setLayerX(17 + 6);
                 this.xSpeed = (-1) * this.xSpeed;
                 if (xSpeed_normalized <= -10) {
                     this.spotAnimation.startBounce();
@@ -310,7 +313,7 @@ final class Spot
             }
         } else if (xSpeed_normalized > 0) {
             if (xSpeed_normalized + xPos + 8 > 159) {
-                this.position.setWorldX(159 - 6);
+                this.position.setLayerX(159 - 6);
                 this.xSpeed = (-1) * this.xSpeed;
                 if (xSpeed_normalized >= 10) {
                     this.spotAnimation.startBounce();
@@ -340,7 +343,7 @@ final class Spot
 
     private final void platformCollisionDetection()
     {
-        final int touchedPlatform = this.world.playGround.checkCollision(this);
+        final int touchedPlatform = this.platformLayer.checkCollision(this);
 
         if ((this.ySpeed <= 0) && (touchedPlatform != -1)) {
             this.landSpot();

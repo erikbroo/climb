@@ -8,13 +8,16 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import com.googlecode.climb.R;
+import com.googlecode.climb.game.utils.ParallaxLayer;
 
 
 /**
  *
  */
-final class Playground
+final class PlatformLayer extends ParallaxLayer
 {
+    private final static float PlatformLayer_DEPTH = 1.0f;
+
     private final Paint text_paint = new Paint();
     {
         this.text_paint.setColor(Color.BLACK);
@@ -36,14 +39,15 @@ final class Playground
 
     private final Bitmap woodshield_large_image;
 
-    private final World world;
+    // private final World world;
 
     private final PlatformSequence platformSequence;
 
-    Playground(Game game, World world)
+    PlatformLayer(Game game)
     {
-        this.world = world;
-        this.platformSequence = new PlatformSequence(this.world);
+        super(PlatformLayer.PlatformLayer_DEPTH);
+
+        this.platformSequence = new PlatformSequence(this);
 
         final Resources resources = game.getResources();
         this.platform_30_image = BitmapFactory.decodeResource(resources,
@@ -111,7 +115,7 @@ final class Playground
 
     final void doUpdate()
     {
-        this.platformSequence.updateWorldview(this.world.getViewY());
+        this.platformSequence.updateWorldview(getViewY());
     }
 
     /**

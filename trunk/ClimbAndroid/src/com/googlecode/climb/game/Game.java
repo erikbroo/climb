@@ -246,9 +246,13 @@ public final class Game extends View
                 this.scorePanel.doUpdate(thisUpdate);
                 this.comboMeter.doUpdate(thisUpdate);
 
-                final int spotY = this.world.spot.getPosition().getWorldY();
-                final int waterY = this.world.water.getPosition().getWorldY();
-                if ((spotY < 0) || (spotY < waterY - 40)) {
+                final int spotY = this.world.spot.getPosition().getVirtualScreenY();
+                final int waterY = this.world.water.getPosition().getVirtualScreenY();
+                if (spotY > Game.VIRTUAL_CANVAS_HEIGHT + 25) {
+                    this.gameState = Game.STATE_GAMEOVER_SEQUENCE;
+                    this.messagePopup.registerMSG("Game Over", 0xFF5522);
+                }
+                if (spotY > waterY + 20) {
                     this.gameState = Game.STATE_GAMEOVER_SEQUENCE;
                     this.messagePopup.registerMSG("Game Over", 0xFF5522);
                 }

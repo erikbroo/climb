@@ -1,5 +1,8 @@
 package com.googlecode.climb.game;
 
+import com.googlecode.climb.game.utils.Vector2;
+
+
 /**
  * Represents a platform.
  */
@@ -24,15 +27,17 @@ class Platform
         this.absoluteIndex = absoluteIndex;
     }
 
-    public static Platform createPlatform(int absoluteIndex, World world)
+    public static Platform createPlatform(int absoluteIndex,
+            PlatformLayer platformLayer)
     {
         if (absoluteIndex % 100 == 0) {
-            return Platform.createBasePlatform(absoluteIndex, world);
+            return Platform.createBasePlatform(absoluteIndex, platformLayer);
         }
-        return Platform.createRandomPlatform(absoluteIndex, world);
+        return Platform.createRandomPlatform(absoluteIndex, platformLayer);
     }
 
-    private static Platform createRandomPlatform(int absoluteIndex, World world)
+    private static Platform createRandomPlatform(int absoluteIndex,
+            PlatformLayer playground)
     {
         final int randomAttribute = Platform.randomPlatformAttribute();
 
@@ -44,7 +49,7 @@ class Platform
         final int yPos = PlatformSequence.LOWEST_PLATFORM_YPOS
                 + (absoluteIndex * PlatformSequence.PLATFORM_DISTANCE);
 
-        final Vector2 position = new Vector2(xPos, yPos, world);
+        final Vector2 position = new Vector2(xPos, yPos, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, playground);
 
         // computing width out of the platform's random attribute
         final int width;
@@ -65,7 +70,8 @@ class Platform
         return new Platform(position, width, height, absoluteIndex);
     }
 
-    private static Platform createBasePlatform(int absoluteIndex, World world)
+    private static Platform createBasePlatform(int absoluteIndex,
+            PlatformLayer playground)
     {
         final int xPos = 16; // xPos of base platforms
 
@@ -73,7 +79,7 @@ class Platform
         final int yPos = PlatformSequence.LOWEST_PLATFORM_YPOS
                 + (absoluteIndex * PlatformSequence.PLATFORM_DISTANCE);
 
-        final Vector2 position = new Vector2(xPos, yPos, world);
+        final Vector2 position = new Vector2(xPos, yPos, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, playground);
 
         final int width = 144; // width of base platforms
 
