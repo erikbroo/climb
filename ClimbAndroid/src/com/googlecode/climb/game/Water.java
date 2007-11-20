@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import com.googlecode.climb.R;
 import com.googlecode.climb.game.utils.Sprite;
+import com.googlecode.climb.game.utils.Vector2;
 
 
 final class Water
@@ -16,7 +17,7 @@ final class Water
 
     private final Vector2 position;
 
-    private final World world;
+    private final PlatformLayer platformLayer;
 
     private int waterSpeedLevel = 0;
 
@@ -37,10 +38,10 @@ final class Water
 
     private boolean waterRiseToggle;
 
-    Water(Game game, World world, int initialAbsoluteYPosition)
+    Water(Game game, PlatformLayer playgroundLayer)
     {
-        this.world = world;
-        this.position = new Vector2(0, initialAbsoluteYPosition, world);
+        this.platformLayer = playgroundLayer;
+        this.position = new Vector2(0, -10, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, this.platformLayer);
         final Bitmap waveBitmap = BitmapFactory.decodeResource(
                 game.getResources(), R.drawable.waterwaves);
         this.waveSprite = new Sprite(waveBitmap, 176, 5);
@@ -49,8 +50,8 @@ final class Water
     final void doUpdate()
     {
         final int screenY = this.position.getVirtualScreenY();
-        if (this.position.getWorldY() < this.world.getViewY() - 15) {
-            this.position.setWorldY(this.world.getViewY() - 10);
+        if (this.position.getLayerY() < this.platformLayer.getViewY() - 50) {
+            this.position.setLayerY(this.platformLayer.getViewY() - 40);
             return;
         }
 

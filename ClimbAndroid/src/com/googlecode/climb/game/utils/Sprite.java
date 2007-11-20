@@ -50,23 +50,17 @@ public class Sprite
         final int bitmapHeight = this.bitmap.height();
 
         if (bitmapWidth % frameWidth != 0) {
-            throw new IllegalArgumentException("frameWidth: must be factor of bitmap width");
+            throw new IllegalArgumentException("frameWidth: must be factor of bitmap width ("
+                    + frameWidth + "," + bitmapWidth + ")");
         }
         if (bitmapHeight % frameHeight != 0) {
-            throw new IllegalArgumentException("frameHeight: must be factor of bitmap height");
+            throw new IllegalArgumentException("frameHeight: must be factor of bitmap height ("
+                    + frameHeight + "," + bitmapHeight + ")");
         }
 
         this.numFrameColumns = bitmapWidth / frameWidth;
         this.numFrameRows = bitmapHeight / frameHeight;
         this.numFrames = this.numFrameColumns * this.numFrameRows;
-    }
-
-    /**
-     * @param i
-     * @param j
-     */
-    public void setRefPixelPosition(int i, int j)
-    {
     }
 
     /**
@@ -98,12 +92,17 @@ public class Sprite
      */
     public void doDraw(Canvas canvas)
     {
+        doDraw(canvas, this.currentFrame);
+    }
+
+    public void doDraw(Canvas canvas, int frame)
+    {
         final int height = this.frameHeight;
         final int width = this.frameWidth;
         final int dstX = this.xPosition;
         final int dstY = this.yPosition;
-        final int srcX = calculateBitmapX();
-        final int srcY = calculateBitmapY();
+        final int srcX = calculateBitmapX(frame);
+        final int srcY = calculateBitmapY(frame);
 
         this.tempSrcRect.set(srcX, srcY, srcX + width, srcY + height);
         this.tempDstRect.set(dstX, dstY, dstX + width, dstY + height);
@@ -112,25 +111,25 @@ public class Sprite
     }
 
     /**
-     * Calculates and returns the current frame's x coordinate in this sprites
+     * Calculates and returns the frame's x coordinate in this sprites
      * underlying bitmap.
      * 
      * @return
      */
-    private final int calculateBitmapX()
+    private final int calculateBitmapX(int frame)
     {
-        return this.frameWidth * (this.currentFrame % this.numFrameColumns);
+        return this.frameWidth * (frame % this.numFrameColumns);
     }
 
     /**
-     * Calculates and returns the current frame's y coordinate in this sprites
+     * Calculates and returns the frame's y coordinate in this sprites
      * underlying bitmap.
      * 
      * @return
      */
-    private int calculateBitmapY()
+    private int calculateBitmapY(int frame)
     {
-        return this.frameHeight * (this.currentFrame / this.numFrameColumns);
+        return this.frameHeight * (frame / this.numFrameColumns);
     }
 
     /**

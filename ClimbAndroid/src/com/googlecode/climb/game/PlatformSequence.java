@@ -28,21 +28,17 @@ final class PlatformSequence
     final static int VISIBLE_PLATFORM_COUNT = Game.VIRTUAL_CANVAS_HEIGHT
             / (PlatformSequence.PLATFORM_DISTANCE) + 5;
 
-    /**
-     * World coordinate system origin is the lower left corner. The initial
-     * lowest platform yPos is 30.
-     */
-    final static int LOWEST_PLATFORM_YPOS = 30;
-
-    private final World world;
+    final static int LOWEST_PLATFORM_YPOS = 5;
 
     private final RingList<Platform> platformList;
 
-    private int topmostVisiblePlatform;;
+    private int topmostVisiblePlatform;
 
-    public PlatformSequence(World world)
+    private final PlatformLayer platformLayer;
+
+    public PlatformSequence(PlatformLayer platformLayer)
     {
-        this.world = world;
+        this.platformLayer = platformLayer;
         this.platformList = new RingList<Platform>(PlatformSequence.VISIBLE_PLATFORM_COUNT);
         initializeList();
     }
@@ -53,7 +49,7 @@ final class PlatformSequence
     private final void initializeList()
     {
         // the first platform:
-        this.platformList.add(Platform.createPlatform(0, this.world));
+        this.platformList.add(Platform.createPlatform(0, this.platformLayer));
         // remaining initial platforms:
         setHighestVisiblePlatform(PlatformSequence.VISIBLE_PLATFORM_COUNT - 1);
     }
@@ -93,7 +89,7 @@ final class PlatformSequence
         while (this.topmostVisiblePlatform < platform) {
             this.topmostVisiblePlatform += 1;
             final Platform newPlatform = Platform.createPlatform(
-                    this.topmostVisiblePlatform, this.world);
+                    this.topmostVisiblePlatform, this.platformLayer);
             this.platformList.add(newPlatform);
         }
     }
@@ -125,8 +121,8 @@ final class PlatformSequence
      */
     final int getCollidingPlatform(Spot spot)
     {
-        final int spotX = spot.getPosition().getWorldX();
-        final int spotY = spot.getPosition().getWorldY();
+        final int spotX = spot.getPosition().getLayerX();
+        final int spotY = spot.getPosition().getLayerY();
         final int spotYSpeed = spot.getYSpeed();
 
         final Platform lowerPlatform = lowerPlatform(spotY);
@@ -136,8 +132,8 @@ final class PlatformSequence
 
         final int platformWidth = lowerPlatform.getWidth();
         final int platformHeight = lowerPlatform.getHeight();
-        final int platformX = lowerPlatform.getPosition().getWorldX();
-        final int platformY = lowerPlatform.getPosition().getWorldY();
+        final int platformX = lowerPlatform.getPosition().getLayerX();
+        final int platformY = lowerPlatform.getPosition().getLayerY();
 
         if (spotY == platformY) {
 
@@ -173,11 +169,6 @@ final class PlatformSequence
             index += 1;
         }
 
-        // if (index >= PlatformSequence.VISIBLE_PLATFORM_COUNT) {
-        // throw new IllegalStateException("Visible platform index >= visible
-        // platform count: "
-        // + index + ">=" + PlatformSequence.VISIBLE_PLATFORM_COUNT);
-        // }
         if (index >= PlatformSequence.VISIBLE_PLATFORM_COUNT) {
             return null;
         }
