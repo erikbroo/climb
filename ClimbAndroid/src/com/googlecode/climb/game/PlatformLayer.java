@@ -18,11 +18,14 @@ final class PlatformLayer extends ParallaxLayer
 {
     private final static float PlatformLayer_DEPTH = 1.0f;
 
+    private final static int WOODSIGN_BITMAP_HEIGHT = 17;
+
     private final Paint text_paint = new Paint();
     {
-        this.text_paint.setColor(Color.BLACK);
-        this.text_paint.setTypeface(Typeface.MONOSPACE);
-        this.text_paint.setTextSize(10);
+        this.text_paint.setColor(Color.rgb(65, 65, 0));
+        this.text_paint.setTypeface(Typeface.create(Typeface.MONOSPACE,
+                Typeface.BOLD));
+        this.text_paint.setTextSize(12);
     }
 
     private final Bitmap platform_30_image;
@@ -33,13 +36,11 @@ final class PlatformLayer extends ParallaxLayer
 
     private final Bitmap platform_full_image;
 
-    private final Bitmap woodshield_small_image;
+    private final Bitmap woodsign_small_image;
 
-    private final Bitmap woodshield_medium_image;
+    private final Bitmap woodsign_medium_image;
 
-    private final Bitmap woodshield_large_image;
-
-    // private final World world;
+    private final Bitmap woodsign_large_image;
 
     private final PlatformSequence platformSequence;
 
@@ -58,11 +59,11 @@ final class PlatformLayer extends ParallaxLayer
                 R.drawable.platform_70);
         this.platform_full_image = BitmapFactory.decodeResource(resources,
                 R.drawable.platform_full);
-        this.woodshield_small_image = BitmapFactory.decodeResource(resources,
+        this.woodsign_small_image = BitmapFactory.decodeResource(resources,
                 R.drawable.woodshield_small);
-        this.woodshield_medium_image = BitmapFactory.decodeResource(resources,
+        this.woodsign_medium_image = BitmapFactory.decodeResource(resources,
                 R.drawable.woodshield_med);
-        this.woodshield_large_image = BitmapFactory.decodeResource(resources,
+        this.woodsign_large_image = BitmapFactory.decodeResource(resources,
                 R.drawable.woodshield_big);
     }
 
@@ -77,6 +78,7 @@ final class PlatformLayer extends ParallaxLayer
             final int xPos = platform.getPosition().getVirtualScreenX();
             final int yPos = platform.getPosition().getVirtualScreenY();
 
+            // platform:
             if (width == 70) { // longest platforms
                 canvas.drawBitmap(this.platform_70_image, xPos, yPos, null);
             } else if (width == 50) {
@@ -90,24 +92,25 @@ final class PlatformLayer extends ParallaxLayer
                         + width);
             }
 
+            // wood signs:
             final int absolutePlatformIndex = platform.getAbsoluteIndex();
 
             if (absolutePlatformIndex == 0) { // base platform
-                canvas.drawBitmap(this.woodshield_small_image, xPos + width
-                        - 20, yPos + 1, null);
-                canvas.drawText("0", xPos + width - 20, yPos - 14,
+                canvas.drawBitmap(this.woodsign_small_image, xPos + width - 30,
+                        yPos - WOODSIGN_BITMAP_HEIGHT, null);
+                canvas.drawText("1", xPos + width - 25, yPos - 5,
                         this.text_paint);
             } else if (absolutePlatformIndex % 10 == 0) {
                 if (absolutePlatformIndex < 100) {
-                    canvas.drawBitmap(this.woodshield_medium_image, xPos
-                            + width - 17, yPos + 1, null);
-                    canvas.drawText(Integer.toString(i), xPos + width - 17,
-                            yPos - 14, this.text_paint);
+                    canvas.drawBitmap(this.woodsign_medium_image, xPos + width
+                            - 30, yPos - WOODSIGN_BITMAP_HEIGHT, null);
+                    canvas.drawText(Integer.toString(absolutePlatformIndex),
+                            xPos + width - 22, yPos - 5, this.text_paint);
                 } else {
-                    canvas.drawBitmap(this.woodshield_large_image, xPos + width
-                            - 17, yPos + 1, null);
-                    canvas.drawText(Integer.toString(i), xPos + width - 17,
-                            yPos - 14, this.text_paint);
+                    canvas.drawBitmap(this.woodsign_large_image, xPos + width
+                            - 30, yPos - WOODSIGN_BITMAP_HEIGHT, null);
+                    canvas.drawText(Integer.toString(absolutePlatformIndex),
+                            xPos + width - 24, yPos - 7, this.text_paint);
                 }
             }
         }

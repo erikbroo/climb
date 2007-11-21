@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 
 
@@ -13,6 +14,22 @@ import android.graphics.Paint.Style;
  */
 final class ComboMeter
 {
+    private final static int BAR_TOP = ScorePanel.SCORE_TOP + 3;
+
+    private final static int BAR_BOTTOM = BAR_TOP + 5;
+
+    private final static int BAR_WIDTH = (ScorePanel.TIMER_LEFT - ScorePanel.SCORE_RIGHT) - 20;
+
+    private final static int BAR_LEFT = ScorePanel.SCORE_RIGHT + 10;
+
+    private final static int BAR_RIGHT = BAR_LEFT + BAR_WIDTH;
+
+    private final static int BAR_RADIUS = 5; // for the round rect attribute
+
+    private final static int MULTI_TEXT_X = BAR_LEFT + BAR_WIDTH / 2;
+
+    private final static int MULTI_TEXT_Y = ScorePanel.PANEL_BOTTOM - 5;
+
     // Combo Constants:
     private final static byte NO_EVENT = 0;
 
@@ -39,16 +56,13 @@ final class ComboMeter
 
     private final static byte COLLIDED = 100;
 
-    private final Typeface monospace_plain_font = Typeface.MONOSPACE;
-
-    private final Typeface monospace_bold_font = Typeface.create(
-            Typeface.MONOSPACE, Typeface.BOLD);
-
     private final Paint text_paint = new Paint();
     {
-        this.text_paint.setColor(Color.argb(255, 250, 180, 40));
-        this.text_paint.setTypeface(this.monospace_plain_font);
+        this.text_paint.setColor(Color.GREEN);
+        this.text_paint.setTypeface(Typeface.create(Typeface.MONOSPACE,
+                Typeface.BOLD));
         this.text_paint.setTextSize(10);
+        this.text_paint.setTextAlign(Align.CENTER);
     }
 
     private final Paint bar_border_paint = new Paint();
@@ -69,11 +83,9 @@ final class ComboMeter
         this.bar_filled_paint.setStyle(Style.FILL);
     }
 
-    private final RectF bar_empty_rect = new RectF(75, 5, 115, 10);
+    private final RectF bar_empty_rect = new RectF(BAR_LEFT, BAR_TOP, BAR_RIGHT, BAR_BOTTOM);
 
-    private final RectF bar_filled_rect = new RectF(76, 5, 76, 10);
-
-    // g.fillRoundRect(75, 5, 40, 5, 10, 10);
+    private final RectF bar_filled_rect = new RectF(BAR_LEFT, BAR_TOP, BAR_LEFT, BAR_BOTTOM);
 
     /*
      * Some circular lists for events and platforms:
@@ -92,27 +104,17 @@ final class ComboMeter
 
     private int lastPlatform;
 
-    private int comboMultiplicator;
+    private int multiplicator = 1;
 
-    private int comboBarLength;
-
-    private int multiBlinkNTimes = 0;
-
-    private int multiBlinkWith = 0;
+    private float barSize = 0.0f;
 
     private final MessagePopup popup;
 
-    private final Water water;
-
-    private final ScorePanel score;
-
     private long lastUpdate;
 
-    ComboMeter(MessagePopup popup, Water water, ScorePanel score)
+    ComboMeter(MessagePopup popup)
     {
         this.popup = popup;
-        this.water = water;
-        this.score = score;
         this.event = new byte[10];
         this.onPlatform = new int[this.event.length];
     }
@@ -147,7 +149,7 @@ final class ComboMeter
      */
     final void onSpotJumped(int fromPlatform)
     {
-        this.fillComboBar();
+        // this.fillComboBar();
 
         addEvent(ComboMeter.JUMPED, fromPlatform);
     }
@@ -161,7 +163,7 @@ final class ComboMeter
     {
         addEvent(ComboMeter.LANDED, platform);
 
-        this.comboBarLength = Math.max(this.comboBarLength * 2 / 3, 1);
+        // this.comboBarLength = Math.max(this.comboBarLength * 2 / 3, 1);
         checkForCombo();
     }
 
@@ -183,9 +185,9 @@ final class ComboMeter
      */
     private void checkForCombo()
     {
-        if (this.comboBarLength <= 0) {
-            return;
-        }
+        // if (this.comboBarLength <= 0) {
+        // return;
+        // }
 
         // Constants:
         final byte NO_COMBO = 0;
@@ -221,13 +223,9 @@ final class ComboMeter
             // Events: ... Landed(L_2) Landed(L_1)
 
             if (L_2 == L_1 + 3) {
-
                 cattyComboPerformed();
-                return;
-
-            } else {
-                return;
             }
+            return;
 
         }
 
@@ -355,21 +353,21 @@ final class ComboMeter
 
     private final void eagleComboPerformed()
     {
-        this.comboBarLength = 42;
+        fillBar();
 
         this.eagleComboCount += 1;
         this.sharkyComboCount = 0;
 
         if ((this.lastCombo == ComboMeter.EAGLE)
                 && (this.lastPlatform == getPlatform(9))) {
-            addToMulti(4);
+            this.multiplicator += 4;
             this.popup.registerComboString("same eagle");
         } else if (this.eagleComboCount >= 3) {
             this.eagleComboCount = 0;
-            addToMulti(3);
+            this.multiplicator += 3;
             this.popup.registerComboString("triple eagle");
         } else {
-            addToMulti(1);
+            this.multiplicator += 1;
             this.popup.registerComboString("eagle");
         }
 
@@ -379,21 +377,21 @@ final class ComboMeter
 
     private final void sharkyComboPerformed()
     {
-        this.comboBarLength = 42;
+        fillBar();
 
         this.sharkyComboCount += 1;
         this.eagleComboCount = 0;
 
         if ((this.lastCombo == ComboMeter.SHARKY)
                 && (this.lastPlatform == getPlatform(9))) {
-            addToMulti(6);
+            this.multiplicator += 6;
             this.popup.registerComboString("same sharky");
         } else if (this.sharkyComboCount >= 2) {
             this.sharkyComboCount = 0;
-            addToMulti(4);
+            this.multiplicator += 4;
             this.popup.registerComboString("double sharky");
         } else {
-            addToMulti(2);
+            this.multiplicator += 2;
             this.popup.registerComboString("sharky");
         }
 
@@ -403,17 +401,17 @@ final class ComboMeter
 
     private final void wallyComboPerformed()
     {
-        this.comboBarLength = 42;
+        fillBar();
 
         this.sharkyComboCount = 0;
         this.eagleComboCount = 0;
 
         if ((this.lastCombo == ComboMeter.WALLY)
                 && (this.lastPlatform == getPlatform(9))) {
-            addToMulti(8);
+            this.multiplicator += 8;
             this.popup.registerComboString("same wally");
         } else {
-            addToMulti(4);
+            this.multiplicator += 4;
             this.popup.registerComboString("wally");
         }
 
@@ -423,17 +421,17 @@ final class ComboMeter
 
     private final void foxyComboPerformed()
     {
-        this.comboBarLength = 42;
+        fillBar();
 
         this.sharkyComboCount = 0;
         this.eagleComboCount = 0;
 
         if ((this.lastCombo == ComboMeter.FOXY)
                 && (this.lastPlatform == getPlatform(9))) {
-            addToMulti(6);
+            this.multiplicator += 6;
             this.popup.registerComboString("same foxy");
         } else {
-            addToMulti(3);
+            this.multiplicator += 3;
             this.popup.registerComboString("foxy");
         }
 
@@ -443,17 +441,17 @@ final class ComboMeter
 
     private final void woodyComboPerformed()
     {
-        this.comboBarLength = 42;
+        fillBar();
 
         this.sharkyComboCount = 0;
         this.eagleComboCount = 0;
 
         if ((this.lastCombo == ComboMeter.WOODY)
                 && (this.lastPlatform == getPlatform(9))) {
-            addToMulti(12);
+            this.multiplicator += 12;
             this.popup.registerComboString("same woody");
         } else {
-            addToMulti(6);
+            this.multiplicator += 6;
             this.popup.registerComboString("woody");
         }
 
@@ -463,17 +461,17 @@ final class ComboMeter
 
     private final void cattyComboPerformed()
     {
-        this.comboBarLength = 42;
+        fillBar();
 
         this.sharkyComboCount = 0;
         this.eagleComboCount = 0;
 
         if ((this.lastCombo == ComboMeter.CATTY)
                 && (this.lastPlatform == getPlatform(9))) {
-            addToMulti(10);
+            this.multiplicator += 10;
             this.popup.registerComboString("same catty");
         } else {
-            addToMulti(4);
+            this.multiplicator += 4;
             this.popup.registerComboString("catty");
         }
 
@@ -483,17 +481,17 @@ final class ComboMeter
 
     private final void doggyComboPerformed()
     {
-        this.comboBarLength = 42;
+        fillBar();
 
         this.sharkyComboCount = 0;
         this.eagleComboCount = 0;
 
         if ((this.lastCombo == ComboMeter.DOGGY)
                 && (this.lastPlatform == getPlatform(9))) {
-            addToMulti(16);
+            this.multiplicator += 16;
             this.popup.registerComboString("same doggy");
         } else {
-            addToMulti(8);
+            this.multiplicator += 8;
             this.popup.registerComboString("doggy");
         }
 
@@ -501,109 +499,55 @@ final class ComboMeter
         this.lastCombo = ComboMeter.DOGGY;
     }
 
-    private final void addToMulti(int i)
-    {
-        this.comboMultiplicator += i;
-
-        if (this.comboMultiplicator <= 20) {
-            this.water.setWaterSpeedMultiplikator(0);
-        } else if ((this.comboMultiplicator > 20)
-                && (this.comboMultiplicator <= 40)) {
-            this.water.setWaterSpeedMultiplikator(1);
-        } else if ((this.comboMultiplicator > 40)
-                && (this.comboMultiplicator <= 60)) {
-            this.water.setWaterSpeedMultiplikator(2);
-        } else if (this.comboMultiplicator > 60) {
-            this.water.setWaterSpeedMultiplikator(3);
-        }
-    }
-
     final void doDraw(Canvas canvas)
     {
         // BAR:
-        canvas.drawRoundRect(this.bar_empty_rect, 1, 1, this.bar_empty_paint);
-        if (this.comboBarLength > 0) {
-            this.bar_filled_rect.right = this.bar_filled_rect.left
-                    + this.comboBarLength - 2;
-            canvas.drawRoundRect(this.bar_filled_rect, 1, 1,
+        canvas.drawRoundRect(this.bar_empty_rect, BAR_RADIUS, BAR_RADIUS,
+                this.bar_empty_paint);
+        if (this.barSize > 0) {
+            this.bar_filled_rect.right = BAR_LEFT + this.barSize * BAR_WIDTH;
+            canvas.drawRoundRect(this.bar_filled_rect, BAR_RADIUS, BAR_RADIUS,
                     this.bar_filled_paint);
-            // g.fillRoundRect(76, 5, this.comboBarLength - 2, 5, 10, 10);
         }
-        canvas.drawRoundRect(this.bar_empty_rect, 1, 1, this.bar_border_paint);
+        canvas.drawRoundRect(this.bar_empty_rect, BAR_RADIUS, BAR_RADIUS,
+                this.bar_border_paint);
 
         // Combo-Multiplicator:
-        this.text_paint.setColor(Color.argb(255, 250, 180, 40));
-        this.text_paint.setTypeface(this.monospace_plain_font);
-        int jumps = this.comboMultiplicator;
-        if (this.multiBlinkNTimes > 0) {
-            if (this.multiBlinkNTimes % 3 == 0) {
-                this.text_paint.setColor(Color.argb(255, 250, 40, 100));
-            }
-            jumps = this.multiBlinkWith;
-            this.text_paint.setTypeface(this.monospace_bold_font);
-        }
-        canvas.drawText("x" + jumps, 89, 13, this.bar_border_paint);
+        canvas.drawText(Integer.toString(this.multiplicator), MULTI_TEXT_X,
+                MULTI_TEXT_Y, this.text_paint);
     }
 
-    final void fillComboBar()
-    {
-        if (this.comboBarLength == 0) {
-            this.comboBarLength = 42;
-        }
-    }
-
-    private final void resetComboMulti()
-    {
-        this.water.setWaterSpeedMultiplikator(0);
-        this.comboBarLength = 0;
-        int t = 1;
-
-        if (this.comboMultiplicator >= 50) {
-            this.popup.registerMSG("PHENOMENAL", 0x10EE99);
-            t = 50;
-        } else if (this.comboMultiplicator >= 40) {
-            this.popup.registerMSG("SENSATIONAL", 0x10EE99);
-            t = 40;
-        } else if (this.comboMultiplicator >= 30) {
-            this.popup.registerMSG("AMAZING", 0x10EE99);
-            t = 30;
-        } else if (this.comboMultiplicator >= 20) {
-            this.popup.registerMSG("Great", 0x10EE99);
-            t = 20;
-        } else if (this.comboMultiplicator >= 10) {
-            this.popup.registerMSG("NICE", 0x10EE99);
-            t = 10;
-        } else if (this.comboMultiplicator >= 5) {
-            this.popup.registerMSG("GOOD", 0x10EE99);
-            t = 5;
-        }
-        this.score.addToScore(t * this.comboMultiplicator);
-        if (t * this.comboMultiplicator <= 1) {
-            return;
-        }
-        this.popup.registerPointAdds(t * this.comboMultiplicator);
-
-        this.multiBlinkNTimes = 16;
-        this.multiBlinkWith = this.comboMultiplicator;
-
-        this.comboMultiplicator = 0;
-    }
+    // if (this.multiplicator >= 50) {
+    // this.popup.registerMSG("PHENOMENAL", Color.rgb(5, 240, 190));
+    // t = 50;
+    // } else if (this.multiplicator >= 40) {
+    // this.popup.registerMSG("SENSATIONAL", Color.rgb(5, 240, 190));
+    // t = 40;
+    // } else if (this.multiplicator >= 30) {
+    // this.popup.registerMSG("AMAZING", Color.rgb(5, 240, 190));
+    // t = 30;
+    // } else if (this.multiplicator >= 20) {
+    // this.popup.registerMSG("Great", Color.rgb(5, 240, 190));
+    // t = 20;
+    // } else if (this.multiplicator >= 10) {
+    // this.popup.registerMSG("NICE", Color.rgb(5, 240, 190));
+    // t = 10;
+    // } else if (this.multiplicator >= 5) {
+    // this.popup.registerMSG("GOOD", Color.rgb(5, 240, 190));
+    // t = 5;
+    // }
 
     final void doUpdate(long thisUpdate)
     {
-        thisUpdate = thisUpdate / 100000; // nanosec to milisec
+        if (thisUpdate - this.lastUpdate > 100) { // 100 msec
+            this.lastUpdate += 100;
 
-        if (thisUpdate - this.lastUpdate > 200) { // 200 msec
-            this.lastUpdate += 200;
-
-            if (this.comboBarLength > 0) {
-                this.comboBarLength = Math.max(this.comboBarLength - 2, 0);
-                if (this.comboBarLength == 0) {
-                    resetComboMulti();
+            if (this.barSize > 0) {
+                this.barSize = Math.max(this.barSize - 0.02f, 0);
+                if (this.barSize == 0) {
+                    this.multiplicator = 1;
                 }
             }
-            this.multiBlinkNTimes--;
-            this.multiBlinkNTimes = Math.max(0, this.multiBlinkNTimes);
         }
     }
 
@@ -620,5 +564,15 @@ final class ComboMeter
     final void pause()
     {
 
+    }
+
+    private void fillBar()
+    {
+        this.barSize = 1.0f;
+    }
+
+    final int getMultiplicator()
+    {
+        return this.multiplicator;
     }
 }

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Random;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,7 +31,7 @@ public final class Game extends View
 
     private static final int STATE_FINISHED = 5;
 
-    private static final long LOGIC_UPDATE_RATE = 50000000; // 50 millisec
+    private static final long LOGIC_UPDATE_RATE = 50; // 50 millisec
 
     static final Random RANDOM = new Random();
 
@@ -109,10 +110,10 @@ public final class Game extends View
 
         setFocusable(true);
 
-        this.scorePanel = new ScorePanel(this);
         this.world = new World(this);
         this.messagePopup = new MessagePopup(this);
-        this.comboMeter = new ComboMeter(this.messagePopup, this.world.water, this.scorePanel);
+        this.comboMeter = new ComboMeter(this.messagePopup);
+        this.scorePanel = new ScorePanel(this.messagePopup, this.comboMeter, this.world.water);
     }
 
     /**
@@ -190,7 +191,7 @@ public final class Game extends View
 
         this.activity = activity;
 
-        this.messagePopup.registerMSG("Go Go Go", 0x22FF33);
+        this.messagePopup.registerMSG("Go Go Go", Color.rgb(30, 255, 50));
         this.scorePanel.init();
         this.comboMeter.init();
     }
@@ -231,7 +232,7 @@ public final class Game extends View
 
     private final void doUpdate()
     {
-        final long thisUpdate = System.nanoTime();
+        final long thisUpdate = System.currentTimeMillis();
         if (thisUpdate - this.lastUpdate < Game.LOGIC_UPDATE_RATE) {
             return;
         }
@@ -250,11 +251,13 @@ public final class Game extends View
                 final int waterY = this.world.water.getPosition().getVirtualScreenY();
                 if (spotY > Game.VIRTUAL_CANVAS_HEIGHT + 25) {
                     this.gameState = Game.STATE_GAMEOVER_SEQUENCE;
-                    this.messagePopup.registerMSG("Game Over", 0xFF5522);
+                    this.messagePopup.registerMSG("Game Over", Color.rgb(255,
+                            100, 10));
                 }
                 if (spotY > waterY + 20) {
                     this.gameState = Game.STATE_GAMEOVER_SEQUENCE;
-                    this.messagePopup.registerMSG("Game Over", 0xFF5522);
+                    this.messagePopup.registerMSG("Game Over", Color.rgb(255,
+                            100, 10));
                 }
                 break;
             case STATE_PAUSED:
@@ -342,11 +345,11 @@ public final class Game extends View
         this.lastTouchedPlatform = platform;
 
         this.comboMeter.onSpotLanded(platform);
+        this.scorePanel.onSpotLanded(platform);
 
-        if ((platform % 100) < 5) {
+        if ((platform % 100) < 3) { // remember we can jump 3 platforms at once!
             if ((platform / 100) > this.currentCent) {
                 this.world.water.setWaterSpeedLevel(0);
-                this.world.water.setWaterSpeedMultiplikator(0);
                 this.currentCent++;
                 this.scorePanel.resetTimer();
             }
@@ -403,7 +406,7 @@ public final class Game extends View
 
     public int getTotalScore()
     {
-        return this.scorePanel.getTotalScore();
+        return this.scorePanel.getScore();
     }
 
     public int getHighestTouchedPlatform()

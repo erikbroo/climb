@@ -1,125 +1,178 @@
 package com.googlecode.climb.game;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.Paint.Style;
 
 
 final class ScorePanel
 {
-    private final static int BOX_WIDTH = Game.VIRTUAL_CANVAS_WIDTH;
+    private final static String LOG_TAG = "ScorePanel";
 
-    private final static int BOX_HEIGHT = 25;
+    private final static int PANEL_LEFT = 0;
 
-    private final static int BOX_XPOS = 0;
+    private final static int PANEL_TOP = 0;
 
-    private final static int BOX_YPOS = 0;
+    private final static int PANEL_RIGHT = Game.VIRTUAL_CANVAS_WIDTH;
 
-    private final static int[] ALPHA_BOX;
+    final static int PANEL_BOTTOM = 30;
 
-    static {
-        ALPHA_BOX = new int[ScorePanel.BOX_WIDTH * 1];
-        for (int i = 0; i < ScorePanel.ALPHA_BOX.length; i++) {
-            ScorePanel.ALPHA_BOX[i] = 0x99222222;
-        }
+    private final static int SCORE_LEFT = PANEL_LEFT + 15;
+
+    final static int SCORE_TOP = PANEL_TOP + 7;
+
+    final static int SCORE_RIGHT = SCORE_LEFT + 50;
+
+    private final static int SCORE_BOTTOM = SCORE_TOP + 16;
+
+    final static int TIMER_LEFT = PANEL_LEFT + 130;
+
+    private final static int TIMER_TOP = PANEL_TOP + 7;
+
+    private final static int TIMER_RIGHT = TIMER_LEFT + 31;
+
+    private final static int TIMER_BOTTOM = TIMER_TOP + 16;
+
+    private final Paint panel_paint = new Paint();
+    {
+        this.panel_paint.setStyle(Style.FILL);
+        this.panel_paint.setColor(Color.BLACK);
+        this.panel_paint.setAlpha(150);
     }
 
-    private final Game game;
+    private final Paint score_paint = new Paint();
+    {
+        this.score_paint.setStyle(Style.FILL);
+        this.score_paint.setColor(Color.rgb(70, 70, 70));
+    }
 
-    private int baseScore;
+    private final Paint score_text_paint = new Paint();
+    {
+        this.score_text_paint.setTypeface(Typeface.create(Typeface.MONOSPACE,
+                Typeface.BOLD));
+        this.score_text_paint.setTextSize(16);
+        this.score_text_paint.setColor(Color.rgb(20, 140, 250));
+    }
+
+    private final Paint timer_text_paint = new Paint();
+    {
+        this.timer_text_paint.setTypeface(Typeface.create(Typeface.MONOSPACE,
+                Typeface.BOLD));
+        this.timer_text_paint.setTextSize(16);
+        this.timer_text_paint.setColor(Color.rgb(250, 10, 100));
+    }
+
+    private final Paint border_paint = new Paint();
+    {
+        this.border_paint.setStyle(Style.STROKE);
+        this.border_paint.setColor(Color.GRAY);
+    }
+
+    private final Paint button_paint = new Paint();
+    {
+        this.button_paint.setStyle(Style.FILL);
+        this.button_paint.setColor(Color.DKGRAY);
+    }
+
+    private int score;
+
+    /**
+     * Using an explicite string builder for efficiency reasons.
+     */
+    private final StringBuilder stringBuilder = new StringBuilder();
 
     private int baseTime = 150;
 
-    ScorePanel(Game game)
+    private int timer;
+
+    private long lastUpdate;
+
+    private int lastPlatform;
+
+    private final ComboMeter comboMeter;
+
+    private final MessagePopup messagePopup;
+
+    private final Water water;
+
+    ScorePanel(MessagePopup messagePopup, ComboMeter comboMeter, Water water)
     {
-        this.game = game;
+        this.messagePopup = messagePopup;
+        this.comboMeter = comboMeter;
+        this.water = water;
     }
 
     final void doDraw(Canvas canvas)
     {
-        // int lines = 0;
-        // while (lines <= ScorePanel.BOX_HEIGHT) {
-        // canvas.drawRGB(ScorePanel.ALPHA_BOX, 0, ScorePanel.BOX_WIDTH, 0,
-        // lines, ScorePanel.BOX_WIDTH, 1, true);
-        // lines++;
-        // }
-        // canvas.setColor(255, 255, 255);
-        // canvas.drawRect(0, 0, 175, 25);
-        //
-        // // score
-        // canvas.setColor(0xFEFEFE);
-        // canvas.drawRect(19, 4, 50, 16);
-        // canvas.setColor(0x404040);
-        // canvas.fillRect(19, 4, 50, 16);
-        // canvas.setColor(20, 140, 250);
-        // canvas.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
-        // Font.SIZE_MEDIUM));
-        // canvas.drawString(scoreToString(), 20, 5, Graphics.TOP |
-        // Graphics.LEFT);
-        //
-        // // countdown
-        // canvas.setColor(0xFEFEFE);
-        // canvas.drawRect(125, 4, 30, 16);
-        // canvas.setColor(0x404040);
-        // canvas.fillRect(125, 4, 30, 16);
-        // canvas.setColor(250, 10, 100);
-        // canvas.drawString(timerToString(), 126, 5, Graphics.TOP |
-        // Graphics.LEFT);
-        //
-        // // buttons
-        // canvas.setColor(0x707070);
-        // canvas.fillArc(5, 2, 7, 7, 0, 360);
-        // canvas.fillArc(164, 2, 7, 7, 0, 360);
-        // canvas.fillArc(5, 15, 7, 7, 0, 360);
-        // canvas.fillArc(164, 15, 7, 7, 0, 360);
-        // canvas.setColor(0xD0D0D0);
-        // canvas.drawArc(5, 2, 7, 7, 0, 360);
-        // canvas.drawArc(164, 2, 7, 7, 0, 360);
-        // canvas.drawArc(5, 15, 7, 7, 0, 360);
-        // canvas.drawArc(164, 15, 7, 7, 0, 360);
-        // canvas.setColor(0xFEFEFE);
-        // canvas.fillArc(6, 3, 3, 3, 0, 360);
-        // canvas.fillArc(165, 3, 3, 3, 0, 360);
-        // canvas.fillArc(6, 16, 3, 3, 0, 360);
-        // canvas.fillArc(165, 16, 3, 3, 0, 360);
-    }
+        // panel:
+        canvas.drawRect(PANEL_LEFT, PANEL_TOP, PANEL_RIGHT, PANEL_BOTTOM,
+                this.panel_paint);
+        canvas.drawRect(PANEL_LEFT, PANEL_TOP, PANEL_RIGHT, PANEL_BOTTOM,
+                this.border_paint);
 
-    final void addToScore(int v)
-    {
-        this.baseScore += v;
+        // score:
+        canvas.drawRect(SCORE_LEFT, SCORE_TOP, SCORE_RIGHT, SCORE_BOTTOM,
+                this.score_paint);
+        canvas.drawRect(SCORE_LEFT, SCORE_TOP, SCORE_RIGHT, SCORE_BOTTOM,
+                this.border_paint);
+        canvas.drawText(scoreToString(), SCORE_LEFT + 1, SCORE_BOTTOM - 2,
+                this.score_text_paint);
+
+        // timer:
+        canvas.drawRect(TIMER_LEFT, TIMER_TOP, TIMER_RIGHT, TIMER_BOTTOM,
+                this.score_paint);
+        canvas.drawRect(TIMER_LEFT, TIMER_TOP, TIMER_RIGHT, TIMER_BOTTOM,
+                this.border_paint);
+        canvas.drawText(timerToString(), TIMER_LEFT + 1, TIMER_BOTTOM - 2,
+                this.timer_text_paint);
+
+        // buttons
+        canvas.drawCircle(PANEL_LEFT + 4, PANEL_TOP + 4, 2, this.button_paint);
+        canvas.drawCircle(PANEL_LEFT + 4, PANEL_TOP + 4, 2, this.border_paint);
+
+        canvas.drawCircle(PANEL_LEFT + 4, PANEL_BOTTOM - 4, 2,
+                this.button_paint);
+        canvas.drawCircle(PANEL_LEFT + 4, PANEL_BOTTOM - 4, 2,
+                this.border_paint);
+
+        canvas.drawCircle(PANEL_RIGHT - 4, PANEL_TOP + 4, 2, this.button_paint);
+        canvas.drawCircle(PANEL_RIGHT - 4, PANEL_TOP + 4, 2, this.border_paint);
+
+        canvas.drawCircle(PANEL_RIGHT - 4, PANEL_BOTTOM - 4, 2,
+                this.button_paint);
+        canvas.drawCircle(PANEL_RIGHT - 4, PANEL_BOTTOM - 4, 2,
+                this.border_paint);
     }
 
     private final String scoreToString()
     {
-        int score_ = getTotalScore();
-        String Score = "";
-        score_ = score_ % 100000;
+        final int score_ = this.score % 100000;
 
+        this.stringBuilder.delete(0, this.stringBuilder.length());
         if (score_ < 10) {
-            Score = "0000" + score_;
+            this.stringBuilder.append("0000");
         } else if (score_ < 100) {
-            Score = "000" + score_;
+            this.stringBuilder.append("000");
         } else if (score_ < 1000) {
-            Score = "00" + score_;
+            this.stringBuilder.append("00");
         } else if (score_ < 10000) {
-            Score = "0" + score_;
-        } else {
-            Score = "" + score_;
+            this.stringBuilder.append("0");
         }
+        this.stringBuilder.append(score_);
 
-        return Score;
+        return this.stringBuilder.toString();
     }
 
-    final int getTotalScore()
+    final int getScore()
     {
-        return this.baseScore + this.game.getHighestTouchedPlatform() * 1;
+        return this.score;
     }
-
-    private int timer;
-
-    private long timerTick;
 
     final void init()
     {
-        this.timerTick = System.currentTimeMillis();
+        this.lastUpdate = System.currentTimeMillis();
         this.timer = this.baseTime;
     }
 
@@ -130,52 +183,82 @@ final class ScorePanel
 
     final void resume()
     {
-        this.timerTick = System.currentTimeMillis();
+        this.lastUpdate = System.currentTimeMillis();
     }
 
     final void doUpdate(long thisUpdate)
     {
-        // if (tick - this.timerTick > 1000) {
-        // this.timer--;
-        // this.timerTick += 1000;
-        //
-        // if (this.timer == 100) {
-        // this.game.messagePopup.registerMSG("Hurry Up", 0xFF1111);
-        // this.game.world.water.setWaterSpeedLevel(1);
-        // } else if (this.timer == 70) {
-        // this.game.messagePopup.registerMSG("Hurry Up!", 0xFF1111);
-        // this.game.world.water.setWaterSpeedLevel(2);
-        // } else if (this.timer == 20) {
-        // this.game.messagePopup.registerMSG("Hurry Up!!", 0xFF1111);
-        // this.game.world.water.setWaterSpeedLevel(3);
-        // } else if (this.timer == 0) {
-        // this.game.messagePopup.registerMSG("Hurry Up!!!", 0xFF1111);
-        // this.game.world.water.setWaterSpeedLevel(4);
-        // }
-        // }
+        // Log.v(LOG_TAG, "doUpdate() last update: " + this.lastUpdate);
+        // Log.v(LOG_TAG, "doUpdate() this update: " + thisUpdate);
+        // Log.v(LOG_TAG, "doUpdate() elapsed time: "
+        // + (thisUpdate - this.lastUpdate));
+
+        if (thisUpdate - this.lastUpdate > 1000) { // 1 sec
+            this.timer--;
+            this.lastUpdate += 1000;
+
+            if (this.timer == 100) {
+                this.messagePopup.registerMSG("Hurry Up!", Color.RED);
+            } else if (this.timer == 50) {
+                this.messagePopup.registerMSG("Hurry Up!", Color.RED);
+            } else if (this.timer == 10) {
+                this.messagePopup.registerMSG("Hurry Up!", Color.RED);
+            } else if (this.timer == 0) {
+                this.messagePopup.registerMSG("Hurry Up", Color.RED);
+            }
+
+            if (this.timer <= 0) {
+                this.water.setWaterSpeedLevel(6);
+            } else if (this.timer <= 10) {
+                this.water.setWaterSpeedLevel(5);
+            } else if (this.timer <= 25) {
+                this.water.setWaterSpeedLevel(4);
+            } else if (this.timer <= 75) {
+                this.water.setWaterSpeedLevel(3);
+            } else if (this.timer <= 125) {
+                this.water.setWaterSpeedLevel(2);
+            } else {
+                this.water.setWaterSpeedLevel(1);
+            }
+        }
+    }
+
+    final void onSpotLanded(int platform)
+    {
+        if (platform - this.lastPlatform > 0) {
+            this.score += (platform - this.lastPlatform)
+                    * this.comboMeter.getMultiplicator();
+        }
+        this.lastPlatform = platform;
     }
 
     final String timerToString()
     {
+        this.stringBuilder.delete(0, this.stringBuilder.length());
+
         if (this.timer < 0) {
             return "000";
         } else if (this.timer < 10) {
-            return "00" + this.timer;
+            this.stringBuilder.append("00");
+            this.stringBuilder.append(this.timer);
+            return this.stringBuilder.toString();
         } else if (this.timer < 100) {
-            return "0" + this.timer;
+            this.stringBuilder.append("0");
+            this.stringBuilder.append(this.timer);
+            return this.stringBuilder.toString();
         } else {
-            return "" + this.timer;
+            return Integer.toString(this.timer);
         }
     }
 
     public void resetTimer()
     {
-        this.baseTime -= 10;
+        this.baseTime -= 5;
         if (this.timer > 0) {
-            this.baseScore += (this.timer * 10);
-            this.game.messagePopup.registerMSG("TIME BONUS", 0x202090);
+            this.score += (this.timer * 10);
+            this.messagePopup.registerMSG("TIME BONUS", Color.CYAN);
         } else {
-            this.game.messagePopup.registerMSG("NO TIME BONUS", 0x202090);
+            this.messagePopup.registerMSG("NO TIME BONUS", Color.CYAN);
         }
         this.timer = this.baseTime;
     }

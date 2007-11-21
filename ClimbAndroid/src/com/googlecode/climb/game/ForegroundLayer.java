@@ -15,85 +15,99 @@ import com.googlecode.climb.game.utils.Sprite;
  */
 final class ForegroundLayer extends ParallaxLayer
 {
-    private final static int ROW_HEIGHT = 14;
+    private final static int CELL_HEIGHT = 28;
 
-    private final static int ROW_WIDTH = Game.VIRTUAL_CANVAS_WIDTH;
+    private final static int CELL_WIDTH = 15;
 
-    private final static int BITMAP_HEIGHT = 196;
+    private final static int FRAMES_IN_BITMAP = 12;
 
-    private final static int BITMAP_WIDTH = ROW_WIDTH;
+    private final static int NUMBER_OF_CELLS = Game.VIRTUAL_CANVAS_HEIGHT
+            / CELL_HEIGHT + 2;
 
-    private final static int NUMBER_OF_ROWS_IN_BITMAP = BITMAP_HEIGHT
-            / ROW_HEIGHT;
-
-    private final static int NUMBER_OF_ROWS = Game.VIRTUAL_CANVAS_HEIGHT
-            / ROW_HEIGHT + 2;
-
-    private static final float BACKGROUND_DEPTH = 0.5f;
+    private static final float FOREGROUND_DEPTH = 1.25f;
 
     private final Random random = new Random();
 
-    private final RingListI rowList;
+    private final RingListI cellListLeft;
 
-    private int topmostVisibleRow;
+    private final RingListI cellListRight;
+
+    private int topmostVisibleCell;
 
     private final Sprite backgroundSprite;
 
     ForegroundLayer(Game view)
     {
-        super(0.5f);
+        super(FOREGROUND_DEPTH);
 
         final Bitmap bitmap = BitmapFactory.decodeResource(view.getResources(),
-                R.drawable.background);
-        this.backgroundSprite = new Sprite(bitmap, BITMAP_WIDTH, ROW_HEIGHT);
+                R.drawable.foreground);
+        this.backgroundSprite = new Sprite(bitmap, CELL_WIDTH, CELL_HEIGHT);
 
-        this.rowList = new RingListI(NUMBER_OF_ROWS);
+        this.cellListLeft = new RingListI(NUMBER_OF_CELLS);
+        this.cellListRight = new RingListI(NUMBER_OF_CELLS);
         initializeList();
     }
 
     private final void initializeList()
     {
-        // the first row:
-        int firstRowFrame = this.random.nextInt(NUMBER_OF_ROWS_IN_BITMAP);
-        if (firstRowFrame % 2 != 0) {
-            firstRowFrame += 1;
-            firstRowFrame %= NUMBER_OF_ROWS_IN_BITMAP;
+        // the first cells:
+        int firstCellLeftFrame = this.random.nextInt(FRAMES_IN_BITMAP);
+        int firstCellRightFrame = this.random.nextInt(FRAMES_IN_BITMAP);
+        if (firstCellLeftFrame % 2 != 0) {
+            firstCellLeftFrame += 1;
+            firstCellLeftFrame %= FRAMES_IN_BITMAP;
         }
-        this.rowList.add(firstRowFrame);
+        if (firstCellRightFrame % 2 != 0) {
+            firstCellRightFrame += 1;
+            firstCellRightFrame %= FRAMES_IN_BITMAP;
+        }
+        this.cellListLeft.add(firstCellLeftFrame);
+        this.cellListRight.add(firstCellRightFrame);
         // remaining initial rows:
         doUpdate();
     }
 
     final void doUpdate()
     {
-        final int topmostRowIndex = 1
-                + (getViewY() + Game.VIRTUAL_CANVAS_HEIGHT) / ROW_HEIGHT;
+        final int topmostCellIndex = 1
+                + (getViewY() + Game.VIRTUAL_CANVAS_HEIGHT) / CELL_HEIGHT;
 
-        if (topmostRowIndex <= this.topmostVisibleRow) {
+        if (topmostCellIndex <= this.topmostVisibleCell) {
             return;
         }
 
-        while (this.topmostVisibleRow < topmostRowIndex) {
-            this.topmostVisibleRow += 1;
-            int randomFrame = this.random.nextInt(NUMBER_OF_ROWS_IN_BITMAP);
-            if (((this.topmostVisibleRow % 2 == 0) && (randomFrame % 2 != 0))
-                    || ((this.topmostVisibleRow % 2 != 0) && (randomFrame % 2 == 0))) {
-                randomFrame += 1;
-                randomFrame %= NUMBER_OF_ROWS_IN_BITMAP;
+        while (this.topmostVisibleCell < topmostCellIndex) {
+            this.topmostVisibleCell += 1;
+            int randomFrameLeft = this.random.nextInt(FRAMES_IN_BITMAP);
+            int randomFrameRight = this.random.nextInt(FRAMES_IN_BITMAP);
+            if (((this.topmostVisibleCell % 2 == 0) && (randomFrameLeft % 2 != 0))
+                    || ((this.topmostVisibleCell % 2 != 0) && (randomFrameLeft % 2 == 0))) {
+                randomFrameLeft += 1;
+                randomFrameLeft %= FRAMES_IN_BITMAP;
             }
-            this.rowList.add(randomFrame);
+            if (((this.topmostVisibleCell % 2 == 0) && (randomFrameRight % 2 != 0))
+                    || ((this.topmostVisibleCell % 2 != 0) && (randomFrameRight % 2 == 0))) {
+                randomFrameRight += 1;
+                randomFrameRight %= FRAMES_IN_BITMAP;
+            }
+            this.cellListLeft.add(randomFrameLeft);
+            this.cellListRight.add(randomFrameRight);
         }
     }
 
     final void doDraw(Canvas canvas)
     {
         int y = (getViewY() + Game.VIRTUAL_CANVAS_HEIGHT)
-                - (this.topmostVisibleRow * ROW_HEIGHT);
+                - (this.topmostVisibleCell * CELL_HEIGHT);
 
-        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+        for (int i = 0; i < NUMBER_OF_CELLS; i++) {
             this.backgroundSprite.setPosition(0, y);
-            this.backgroundSprite.doDraw(canvas, this.rowList.get(i));
-            y += ROW_HEIGHT;
+            this.backgroundSprite.doDraw(canvas, this.cellListLeft.get(i));
+            this.backgroundSprite.setPosition(Game.VIRTUAL_CANVAS_WIDTH
+                    - CELL_WIDTH, y);
+            this.backgroundSprite.doDraw(canvas, this.cellListRight.get(i));
+            y += CELL_HEIGHT;
         }
     }
 }
