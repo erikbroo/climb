@@ -26,10 +26,14 @@ final class BackgroundLayer extends ParallaxLayer
     private final static int NUMBER_OF_ROWS_IN_BITMAP = BITMAP_HEIGHT
             / ROW_HEIGHT;
 
+    private static final int BLANK_ROW_1_INDEX = NUMBER_OF_ROWS_IN_BITMAP - 1;
+
+    private static final int BLANK_ROW_2_INDEX = NUMBER_OF_ROWS_IN_BITMAP - 2;
+
     private final static int NUMBER_OF_ROWS = Game.VIRTUAL_CANVAS_HEIGHT
             / ROW_HEIGHT + 2;
 
-    private static final float BACKGROUND_DEPTH = 0.5f;
+    private static final float BACKGROUND_DEPTH = 0.75f;
 
     private final Random random = new Random();
 
@@ -45,7 +49,7 @@ final class BackgroundLayer extends ParallaxLayer
 
         final Bitmap bitmap = BitmapFactory.decodeResource(view.getResources(),
                 R.drawable.background);
-        this.backgroundSprite = new Sprite(bitmap, BITMAP_WIDTH, ROW_HEIGHT);
+        this.backgroundSprite = new Sprite(bitmap, ROW_WIDTH, ROW_HEIGHT);
 
         this.rowList = new RingListI(NUMBER_OF_ROWS);
         initializeList();
@@ -75,11 +79,27 @@ final class BackgroundLayer extends ParallaxLayer
 
         while (this.topmostVisibleRow < topmostRowIndex) {
             this.topmostVisibleRow += 1;
-            int randomFrame = this.random.nextInt(NUMBER_OF_ROWS_IN_BITMAP);
-            if (((this.topmostVisibleRow % 2 == 0) && (randomFrame % 2 != 0))
-                    || ((this.topmostVisibleRow % 2 != 0) && (randomFrame % 2 == 0))) {
-                randomFrame += 1;
-                randomFrame %= NUMBER_OF_ROWS_IN_BITMAP;
+            int randomFrame;
+            if (this.topmostVisibleRow % 2 == 0) {
+                if (this.random.nextBoolean()) {
+                    randomFrame = BLANK_ROW_2_INDEX;
+                } else {
+                    randomFrame = this.random.nextInt(NUMBER_OF_ROWS_IN_BITMAP);
+                    if (randomFrame % 2 != 0) {
+                        randomFrame += 1;
+                        randomFrame %= NUMBER_OF_ROWS_IN_BITMAP;
+                    }
+                }
+            } else {
+                if (this.random.nextBoolean()) {
+                    randomFrame = BLANK_ROW_1_INDEX;
+                } else {
+                    randomFrame = this.random.nextInt(NUMBER_OF_ROWS_IN_BITMAP);
+                    if (randomFrame % 2 == 0) {
+                        randomFrame += 1;
+                        randomFrame %= NUMBER_OF_ROWS_IN_BITMAP;
+                    }
+                }
             }
             this.rowList.add(randomFrame);
         }

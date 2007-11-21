@@ -15,6 +15,8 @@ final class World
 
     private final BackgroundLayer backgroundLayer;
 
+    private final ForegroundLayer foregroundLayer;
+
     private int yPosition;
 
     final Water water;
@@ -28,6 +30,8 @@ final class World
         this.parallaxManager.addParallaxLayer(this.platformLayer);
         this.backgroundLayer = new BackgroundLayer(game);
         this.parallaxManager.addParallaxLayer(this.backgroundLayer);
+        this.foregroundLayer = new ForegroundLayer(game);
+        this.parallaxManager.addParallaxLayer(this.foregroundLayer);
 
         this.yPosition = 0;
 
@@ -42,6 +46,7 @@ final class World
         this.platformLayer.doDraw(canvas);
         this.spot.doDraw(canvas);
         this.water.doDraw(canvas);
+        this.foregroundLayer.doDraw(canvas);
     }
 
     final void doUpdate(long thisUpdate)
@@ -66,6 +71,7 @@ final class World
         this.parallaxManager.setViewY(this.yPosition);
         this.platformLayer.doUpdate();
         this.backgroundLayer.doUpdate();
+        this.foregroundLayer.doUpdate();
 
         this.water.doUpdate();
     }

@@ -1,21 +1,30 @@
 package com.googlecode.climb.game;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
+import android.util.Log;
 
 
 final class MessagePopup
 {
-    private final static int BOX_WIDTH = 116;
+    private static final String LOG_TAG = "MessagePopup";
 
-    private final static int BOX_HEIGHT = 20;
+    private final static int BOX_LEFT = 30;
 
-    private final static int BOX_XPOS = (Game.VIRTUAL_CANVAS_WIDTH - MessagePopup.BOX_WIDTH) / 2;
+    private final static int BOX_RIGHT = Game.VIRTUAL_CANVAS_WIDTH - 30;
 
-    private final static int BOX_YPOS = 50;
+    private final static int BOX_TOP = 50;
+
+    private final static int BOX_BOTTOM = BOX_TOP + 20;
+
+    private final static int TEXT_X = (BOX_LEFT + BOX_RIGHT) / 2;
+
+    private final static int TEXT_Y = BOX_BOTTOM - 4;
 
     private final Paint box_border_paint = new Paint();
     {
@@ -25,15 +34,24 @@ final class MessagePopup
 
     private final Paint box_fill_paint = new Paint();
     {
-        this.box_fill_paint.setColor(Color.argb(200, 50, 50, 50));
-        this.box_fill_paint.setStyle(Style.STROKE);
+        this.box_fill_paint.setColor(Color.rgb(50, 50, 50));
+        this.box_fill_paint.setAlpha(200);
+        this.box_fill_paint.setStyle(Style.FILL);
     }
 
-    private final ArrayList<Message> messageQueue = new ArrayList<Message>(10);
+    private final Paint text_paint = new Paint();
+    {
+        this.text_paint.setTextSize(18);
+        this.text_paint.setTypeface(Typeface.create(Typeface.MONOSPACE,
+                Typeface.BOLD));
+        this.text_paint.setTextAlign(Align.CENTER);
+    }
 
-    private long showedTime;
+    private final LinkedList<Message> messageQueue = new LinkedList<Message>();
 
-    private short showedCount;
+    private long startTime;
+
+    private long elapsedTime = -1;
 
     private int pointAdds = -1;
 
@@ -49,24 +67,12 @@ final class MessagePopup
 
     private final Game game;
 
-    private final World world;
-
     private final Spot spot;
-
-    // private final static int[] ALPHA_BOX;
-    //
-    // static {
-    // ALPHA_BOX = new int[MessagePopup.BOX_WIDTH * MessagePopup.BOX_HEIGHT];
-    // for (int i = 0; i < MessagePopup.ALPHA_BOX.length; i++) {
-    // MessagePopup.ALPHA_BOX[i] = 0x99222222;
-    // }
-    // }
 
     MessagePopup(Game game)
     {
         this.game = game;
-        this.world = this.game.world;
-        this.spot = this.world.spot;
+        this.spot = this.game.world.spot;
     }
 
     final void registerPointAdds(int adds)
@@ -85,6 +91,7 @@ final class MessagePopup
 
     final void registerMSG(String msg, int color)
     {
+        Log.i(LOG_TAG, "registerMSG() registering message: " + msg);
         this.messageQueue.add(new Message(color, msg));
     }
 
@@ -127,41 +134,30 @@ final class MessagePopup
         if (this.messageQueue.isEmpty()) {
             return;
         }
-        if (this.showedCount == 5) {
-            this.showedCount = 0;
+        // Log.d(LOG_TAG, "doDraw() message queue not empty");
+        if (this.elapsedTime >= 1500) { // 2.5 secs
             this.messageQueue.remove(0);
+            this.elapsedTime = -1;
             return;
         }
+        // Log.d(LOG_TAG, "doDraw() drawing message");
 
-        if (this.showedTime == 0L) {
-            this.showedTime = System.currentTimeMillis();
+        if (this.elapsedTime == -1) {
+            this.startTime = System.currentTimeMillis();
         }
-        // g.drawRGB(MessagePopup.ALPHA_BOX, 0, MessagePopup.BOX_WIDTH,
-        // MessagePopup.BOX_XPOS, MessagePopup.BOX_YPOS,
-        // MessagePopup.BOX_WIDTH, MessagePopup.BOX_HEIGHT, true);
-        // g.setColor(0xFFFFFF);
-        // g.drawRect(30, 50, 116, 20);
-        // if (this.showedCount % 2 != 0) {
-        // if ((int) (System.currentTimeMillis() - this.showedTime) > 70) {
-        // this.showedTime = 0;
-        // this.showedCount += 1;
-        // } else {
-        // return;
-        // }
-        // }
-        // g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
-        // Font.SIZE_MEDIUM));
-        // final String s = ((Message)
-        // this.messageQueue.firstElement()).message;
-        // final int c = ((Message) this.messageQueue.firstElement()).color;
-        // g.setColor(0x400505);
-        // g.drawString(s, 87, 52, Graphics.HCENTER | Graphics.TOP);
-        // g.setColor(c);
-        // g.drawString(s, 88, 53, Graphics.HCENTER | Graphics.TOP);
-        // if ((int) (System.currentTimeMillis() - this.showedTime) > 1000) {
-        // this.showedTime = 0;
-        // this.showedCount += 1;
-        // }
+        this.elapsedTime = System.currentTimeMillis() - this.startTime;
+
+        canvas.drawRect(BOX_LEFT, BOX_TOP, BOX_RIGHT, BOX_BOTTOM,
+                this.box_fill_paint);
+        canvas.drawRect(BOX_LEFT, BOX_TOP, BOX_RIGHT, BOX_BOTTOM,
+                this.box_border_paint);
+
+        final String s = this.messageQueue.get(0).message;
+        final int c = this.messageQueue.get(0).color;
+        this.text_paint.setColor(Color.rgb(100, 1, 1));
+        canvas.drawText(s, TEXT_X - 1, TEXT_Y - 1, this.text_paint);
+        this.text_paint.setColor(c);
+        canvas.drawText(s, TEXT_X, TEXT_Y, this.text_paint);
     }
 
     private static class Message

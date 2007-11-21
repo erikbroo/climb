@@ -21,11 +21,13 @@ final class Water
 
     private int waterSpeedLevel = 0;
 
-    private int waterSpeedMultiplikator = 0;
+    private final int waterSpeedMultiplikator = 0;
 
     private boolean waterSpeedMultiToggle;
 
     private final Sprite waveSprite;
+
+    private long lastUpdateTime;
 
     private final Paint waterPaint = new Paint();
     {
@@ -58,12 +60,7 @@ final class Water
         // water is rising depending on some factors:
         this.waterRiseToggle = !this.waterRiseToggle;
         if (this.waterRiseToggle) {
-            this.position.add(0, 1);
-        }
-        this.position.add(0, this.waterSpeedLevel);
-        this.waterSpeedMultiToggle = !this.waterSpeedMultiToggle;
-        if (this.waterSpeedMultiToggle) {
-            this.position.add(0, this.waterSpeedMultiplikator);
+            this.position.add(0, this.waterSpeedLevel);
         }
     }
 
@@ -89,11 +86,6 @@ final class Water
     final void setWaterSpeedLevel(int a)
     {
         this.waterSpeedLevel = a;
-    }
-
-    final void setWaterSpeedMultiplikator(int a)
-    {
-        this.waterSpeedMultiplikator = a;
     }
 
     final void rise(int i)

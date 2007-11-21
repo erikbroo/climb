@@ -15,6 +15,8 @@ import com.googlecode.climb.game.utils.Vector2;
  */
 final class Spot
 {
+    private static final String LOG_TAG = "Spot";
+
     private final static int SPOT_DIAMETER = 16;
 
     private final static int SPOT_RADIUS = Spot.SPOT_DIAMETER / 2;
@@ -24,8 +26,6 @@ final class Spot
     private final static int LEFTACC = 1;
 
     private final static int RIGHTACC = 2;
-
-    private static final String LOG_TAG = "Spot";
 
     /**
      * Spot's tale consists of two balls, which follow him.
@@ -45,8 +45,6 @@ final class Spot
     }
 
     private final Game game;
-
-    // private final World world;
 
     private int accelerateDirection;
 
