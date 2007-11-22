@@ -101,7 +101,7 @@ final class MessagePopup
     {
         // combo string:
         if (this.comboString != null) {
-            final int comboY = Math.max(0,
+            final int comboY = Math.min(Game.VIRTUAL_CANVAS_HEIGHT,
                     this.platformLayer.getScreenY(this.comboPlatform)
                             + Platform.PLATFORM_HEIGHT * 2);
 
@@ -113,7 +113,7 @@ final class MessagePopup
             }
         }
 
-        // popup message
+        // popup message:
         if (this.messageQueue.isEmpty()) {
             return;
         }

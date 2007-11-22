@@ -75,15 +75,15 @@ public final class Game extends View implements SpotEventListener, KeyEngine
 
     private final World world;
 
+    private final Spot spot;
+
+    private final Water water;
+
     private final ScorePanel scorePanel;
 
     private final ComboMeter comboMeter;
 
     private final MessagePopup messagePopup;
-
-    private final Water water;
-
-    private final Spot spot;
 
     private int currentLevel;
 
@@ -110,10 +110,12 @@ public final class Game extends View implements SpotEventListener, KeyEngine
 
         setFocusable(true);
 
-        this.world = new World(getResources());
+        this.world = new World(getResources(), this);
+
         final PlatformLayer platformLayer = this.world.getPlatformLayer();
-        this.water = new Water(getResources(), platformLayer);
-        this.spot = new Spot(platformLayer, getResources(), this);
+        this.spot = this.world.getSpot();
+        this.water = this.world.getWater();
+
         this.messagePopup = new MessagePopup(this, this.spot, platformLayer);
         this.comboMeter = new ComboMeter(this.messagePopup);
         this.scorePanel = new ScorePanel(this.messagePopup, this.comboMeter, this.water);

@@ -84,7 +84,7 @@ final class PlatformLayer extends ParallaxLayer
                 canvas.drawBitmap(this.platform_50_image, xPos, yPos, null);
             } else if (width == 30) {
                 canvas.drawBitmap(this.platform_30_image, xPos, yPos, null);
-            } else if (width == 144) {
+            } else if (width == 145) {
                 canvas.drawBitmap(this.platform_full_image, xPos, yPos, null);
             } else {
                 throw new IllegalStateException("invalid platform width: "
@@ -109,7 +109,7 @@ final class PlatformLayer extends ParallaxLayer
                     canvas.drawBitmap(this.woodsign_large_image, xPos + width
                             - 30, yPos - WOODSIGN_BITMAP_HEIGHT, null);
                     canvas.drawText(Integer.toString(absolutePlatformIndex),
-                            xPos + width - 24, yPos - 7, this.text_paint);
+                            xPos + width - 25, yPos - 7, this.text_paint);
                 }
             }
         }

@@ -41,9 +41,9 @@ final class Water
 
     private boolean waterRiseToggle;
 
-    Water(Resources resources, PlatformLayer playgroundLayer)
+    Water(Resources resources, PlatformLayer platformLayer)
     {
-        this.platformLayer = playgroundLayer;
+        this.platformLayer = platformLayer;
         this.position = new Vector2(0, 10, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, this.platformLayer);
         final Bitmap waveBitmap = BitmapFactory.decodeResource(resources,
                 R.drawable.waterwaves);

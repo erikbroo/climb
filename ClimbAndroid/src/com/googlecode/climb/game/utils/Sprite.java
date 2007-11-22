@@ -1,6 +1,7 @@
 package com.googlecode.climb.game.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 
 
@@ -88,7 +89,7 @@ public class Sprite
     /**
      * @param canvas
      */
-    protected void doDraw(LayerCanvas canvas)
+    public void doDraw(Canvas canvas)
     {
         final int height = this.frameHeight;
         final int width = this.frameWidth;
