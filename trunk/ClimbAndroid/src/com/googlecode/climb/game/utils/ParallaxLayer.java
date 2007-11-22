@@ -11,12 +11,15 @@ public class ParallaxLayer
 
     private int viewY;
 
-    /**
-     * 
-     */
-    public ParallaxLayer(float depth)
+    private final int screenWidth;
+
+    private final int screenHeight;
+
+    public ParallaxLayer(float depth, int screenWidth, int screenHeight)
     {
         this.depth = depth;
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
     }
 
     /**
@@ -28,29 +31,29 @@ public class ParallaxLayer
     }
 
     /**
+     * This method is called by the ParallaxManager and must not be used by
+     * other classes.
+     * 
      * @param x
      * @param y
      */
     final void setView(int x, int y)
     {
-        setViewX(x);
-        setViewY(y);
-    }
-
-    /**
-     * @param y
-     */
-    final void setViewY(int y)
-    {
+        this.viewX = (int) (x * this.depth);
         this.viewY = (int) (y * this.depth);
     }
 
     /**
+     * This method is called by the ParallaxManager and must not be used by
+     * other classes.
+     * 
      * @param x
+     * @param y
      */
-    final void setViewX(int x)
+    final void moveView(int x, int y)
     {
-        this.viewX = (int) (x * this.depth);
+        this.viewX += (int) (x * this.depth);
+        this.viewY += (int) (y * this.depth);
     }
 
     public final int getViewX()
@@ -61,5 +64,15 @@ public class ParallaxLayer
     public final int getViewY()
     {
         return this.viewY;
+    }
+
+    /**
+     * @param x
+     * @param y
+     * @return
+     */
+    public final Vector2 newVector(int x, int y)
+    {
+        return new Vector2(x, y, this.screenWidth, this.screenHeight, this);
     }
 }

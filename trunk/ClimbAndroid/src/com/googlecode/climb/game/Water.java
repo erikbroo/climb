@@ -1,5 +1,6 @@
 package com.googlecode.climb.game;
 
+import android.content.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -40,20 +41,21 @@ final class Water
 
     private boolean waterRiseToggle;
 
-    Water(Game game, PlatformLayer playgroundLayer)
+    Water(Resources resources, PlatformLayer playgroundLayer)
     {
         this.platformLayer = playgroundLayer;
-        this.position = new Vector2(0, -10, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, this.platformLayer);
-        final Bitmap waveBitmap = BitmapFactory.decodeResource(
-                game.getResources(), R.drawable.waterwaves);
+        this.position = new Vector2(0, 10, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, this.platformLayer);
+        final Bitmap waveBitmap = BitmapFactory.decodeResource(resources,
+                R.drawable.waterwaves);
         this.waveSprite = new Sprite(waveBitmap, 176, 5);
     }
 
     final void doUpdate()
     {
         final int screenY = this.position.getVirtualScreenY();
-        if (this.position.getLayerY() < this.platformLayer.getViewY() - 50) {
-            this.position.setLayerY(this.platformLayer.getViewY() - 40);
+        if (this.position.getLayerY() < this.platformLayer.getViewY() - 20) {
+            // the water will never be lower than 30 units below zero
+            this.position.setLayerY(this.platformLayer.getViewY() - 20);
             return;
         }
 

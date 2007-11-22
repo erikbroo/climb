@@ -8,36 +8,64 @@ import com.googlecode.climb.game.utils.Vector2;
  */
 class Platform
 {
-    private final Vector2 position;
+    private final static int BASE_PLATFORM_X = ForegroundLayer.CELL_WIDTH + 1;
 
-    private final int width;
-
-    private final int height;
-
-    private final int absoluteIndex;
+    private final static int BASE_PLATFORM_WIDTH = Game.VIRTUAL_CANVAS_WIDTH
+            - (2 * ForegroundLayer.CELL_WIDTH) - 1;
 
     /**
-     * Use static create methods.
+     * All platforms have the same height of 10.
      */
-    private Platform(Vector2 position, int width, int height, int absoluteIndex)
+    final static int PLATFORM_HEIGHT = 10;
+
+    private final Vector2 position;
+
+    private final PlatformLayer platformLayer;
+
+    private int width;
+
+    private int absoluteIndex;
+
+    Platform(PlatformLayer platformLayer)
     {
-        this.position = position;
-        this.width = width;
-        this.height = height;
-        this.absoluteIndex = absoluteIndex;
+        this.platformLayer = platformLayer;
+        this.position = this.platformLayer.newVector(0, 0);
     }
 
-    public static Platform createPlatform(int absoluteIndex,
-            PlatformLayer platformLayer)
+    final Vector2 getPosition()
     {
-        if (absoluteIndex % 100 == 0) {
-            return Platform.createBasePlatform(absoluteIndex, platformLayer);
+        return this.position;
+    }
+
+    final int getWidth()
+    {
+        return this.width;
+    }
+
+    final int getAbsoluteIndex()
+    {
+        return this.absoluteIndex;
+    }
+
+    /**
+     * Mutates this platform and sets its attributes depending on the specified
+     * platform index. If index % 100 = 0, the attributes will be the attributes
+     * of a base platform. Otherwise, the attributes will be random generated.
+     * 
+     * @param platformIndex
+     */
+    final void setNewAttributes(int platformIndex)
+    {
+        this.absoluteIndex = platformIndex;
+
+        if (platformIndex % 100 == 0) {
+            newBaseAttributes(this.absoluteIndex);
+        } else {
+            newRandomAttributes(this.absoluteIndex);
         }
-        return Platform.createRandomPlatform(absoluteIndex, platformLayer);
     }
 
-    private static Platform createRandomPlatform(int absoluteIndex,
-            PlatformLayer playground)
+    private final void newRandomAttributes(int platformIndex)
     {
         final int randomAttribute = Platform.randomPlatformAttribute();
 
@@ -47,9 +75,10 @@ class Platform
 
         // computing y position
         final int yPos = PlatformSequence.LOWEST_PLATFORM_YPOS
-                + (absoluteIndex * PlatformSequence.PLATFORM_DISTANCE);
+                + (this.absoluteIndex * PlatformSequence.PLATFORM_DISTANCE);
 
-        final Vector2 position = new Vector2(xPos, yPos, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, playground);
+        this.position.setLayerX(xPos);
+        this.position.setLayerY(yPos);
 
         // computing width out of the platform's random attribute
         final int width;
@@ -63,34 +92,19 @@ class Platform
             throw new IllegalStateException("invalid random platform attribute: "
                     + randomAttribute);
         }
-
-        // every platform has the same height
-        final int height = 10;
-
-        return new Platform(position, width, height, absoluteIndex);
+        this.width = width;
     }
 
-    private static Platform createBasePlatform(int absoluteIndex,
-            PlatformLayer playground)
+    private final void newBaseAttributes(int platformIndex)
     {
-        final int xPos = 16; // xPos of base platforms
-
-        // computing y position
+        final int xPos = BASE_PLATFORM_X;
         final int yPos = PlatformSequence.LOWEST_PLATFORM_YPOS
-                + (absoluteIndex * PlatformSequence.PLATFORM_DISTANCE);
+                + (this.absoluteIndex * PlatformSequence.PLATFORM_DISTANCE);
 
-        final Vector2 position = new Vector2(xPos, yPos, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, playground);
+        this.position.setLayerX(xPos);
+        this.position.setLayerY(yPos);
 
-        final int width = 144; // width of base platforms
-
-        final int height = 10; // every platform has the same height
-
-        return new Platform(position, width, height, absoluteIndex);
-    }
-
-    final Vector2 getPosition()
-    {
-        return this.position;
+        this.width = BASE_PLATFORM_WIDTH;
     }
 
     /**
@@ -205,20 +219,5 @@ class Platform
         }
 
         return result;
-    }
-
-    final int getWidth()
-    {
-        return this.width;
-    }
-
-    final int getHeight()
-    {
-        return this.height;
-    }
-
-    final int getAbsoluteIndex()
-    {
-        return this.absoluteIndex;
     }
 }

@@ -1,6 +1,7 @@
 package com.googlecode.climb.game;
 
 import java.util.Random;
+import android.content.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,7 +18,7 @@ final class ForegroundLayer extends ParallaxLayer
 {
     private final static int CELL_HEIGHT = 28;
 
-    private final static int CELL_WIDTH = 15;
+    final static int CELL_WIDTH = 15;
 
     private final static int FRAMES_IN_BITMAP = 12;
 
@@ -36,11 +37,11 @@ final class ForegroundLayer extends ParallaxLayer
 
     private final Sprite backgroundSprite;
 
-    ForegroundLayer(Game view)
+    ForegroundLayer(Resources resources)
     {
-        super(FOREGROUND_DEPTH);
+        super(FOREGROUND_DEPTH, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT);
 
-        final Bitmap bitmap = BitmapFactory.decodeResource(view.getResources(),
+        final Bitmap bitmap = BitmapFactory.decodeResource(resources,
                 R.drawable.foreground);
         this.backgroundSprite = new Sprite(bitmap, CELL_WIDTH, CELL_HEIGHT);
 

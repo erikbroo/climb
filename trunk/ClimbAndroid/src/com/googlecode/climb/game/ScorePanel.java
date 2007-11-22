@@ -7,7 +7,7 @@ import android.graphics.Typeface;
 import android.graphics.Paint.Style;
 
 
-final class ScorePanel
+final class ScorePanel implements SpotEventListener
 {
     private final static String LOG_TAG = "ScorePanel";
 
@@ -89,7 +89,7 @@ final class ScorePanel
 
     private long lastUpdate;
 
-    private int lastPlatform;
+    // private int lastPlatform;
 
     private final ComboMeter comboMeter;
 
@@ -223,16 +223,7 @@ final class ScorePanel
         }
     }
 
-    final void onSpotLanded(int platform)
-    {
-        if (platform - this.lastPlatform > 0) {
-            this.score += (platform - this.lastPlatform)
-                    * this.comboMeter.getMultiplicator();
-        }
-        this.lastPlatform = platform;
-    }
-
-    final String timerToString()
+    private final String timerToString()
     {
         this.stringBuilder.delete(0, this.stringBuilder.length());
 
@@ -251,7 +242,7 @@ final class ScorePanel
         }
     }
 
-    public void resetTimer()
+    private void resetTimer()
     {
         this.baseTime -= 5;
         if (this.timer > 0) {
@@ -261,5 +252,39 @@ final class ScorePanel
             this.messagePopup.registerMSG("NO TIME BONUS", Color.CYAN);
         }
         this.timer = this.baseTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onSpotCollidedWall()
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onSpotJumped(int fromPlatform)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onSpotLanded(int onPlatform, int previousPlatform)
+    {
+        if (onPlatform - previousPlatform > 0) {
+            this.score += (onPlatform - previousPlatform)
+                    * this.comboMeter.getMultiplicator();
+        }
+    }
+
+    final void onNewLevel()
+    {
+        resetTimer();
+        this.water.setWaterSpeedLevel(0);
     }
 }

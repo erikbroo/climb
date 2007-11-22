@@ -1,5 +1,7 @@
 package com.googlecode.climb.game;
 
+import java.util.LinkedList;
+import android.content.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,6 +22,10 @@ final class Spot
     private final static int SPOT_DIAMETER = 16;
 
     private final static int SPOT_RADIUS = Spot.SPOT_DIAMETER / 2;
+
+    private static final int START_YPOS = PlatformSequence.LOWEST_PLATFORM_YPOS + 1;
+
+    private static final int START_XPOS = 50;
 
     private final static int NOACC = 0;
 
@@ -44,8 +50,6 @@ final class Spot
         this.tale_paint.setARGB(75, 255, 0, 50);
     }
 
-    private final Game game;
-
     private int accelerateDirection;
 
     private final Vector2 position;
@@ -68,13 +72,21 @@ final class Spot
 
     private final PlatformLayer platformLayer;
 
-    Spot(Game game, PlatformLayer platformLayer, int xPosition, int yPosition)
+    private final KeyEngine keyEngine;
+
+    private final LinkedList<SpotEventListener> eventListeners = new LinkedList<SpotEventListener>();
+
+    private int lastTouchedPlatform;
+
+    private int highestTouchedPlatform;
+
+    Spot(PlatformLayer platformLayer, Resources resources, KeyEngine keyEngine)
     {
-        this.game = game;
         this.platformLayer = platformLayer;
-        this.position = new Vector2(xPosition, yPosition, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, platformLayer);
-        final Bitmap spotBitmap = BitmapFactory.decodeResource(
-                game.getResources(), R.drawable.spot);
+        this.keyEngine = keyEngine;
+        this.position = platformLayer.newVector(START_XPOS, START_YPOS);
+        final Bitmap spotBitmap = BitmapFactory.decodeResource(resources,
+                R.drawable.spot);
         this.spotSprite = new Sprite(spotBitmap, Spot.SPOT_DIAMETER, Spot.SPOT_DIAMETER);
         this.spotAnimation = new SpotAnimation(this.spotSprite);
 
@@ -130,12 +142,12 @@ final class Spot
 
     private final void checkKeys()
     {
-        if (this.game.isJumpKeyPressed()) {
+        if (this.keyEngine.isJumpPressed()) {
             jump();
         }
-        if (this.game.isMoveLeftKeyPressed()) {
+        if (this.keyEngine.isMoveLeftPressed()) {
             this.accelerateDirection = Spot.LEFTACC;
-        } else if (this.game.isMoveRightKeyPressed()) {
+        } else if (this.keyEngine.isMoveRightPressed()) {
             this.accelerateDirection = Spot.RIGHTACC;
         } else {
             this.accelerateDirection = Spot.NOACC;
@@ -166,7 +178,7 @@ final class Spot
             this.spotAnimation.startHighJump();
         }
 
-        this.game.onSpotJumped();
+        callJumpListeners(this.lastTouchedPlatform);
     }
 
     private final void applySpeed()
@@ -199,7 +211,7 @@ final class Spot
         return this.position;
     }
 
-    final int getXSpeed()
+    private final int getXSpeed()
     {
         return this.xSpeed;
     }
@@ -209,12 +221,7 @@ final class Spot
         return this.ySpeed;
     }
 
-    final boolean isLanded()
-    {
-        return this.isLanded;
-    }
-
-    private final void landSpot()
+    private final void landSpot(int platform)
     {
         if (this.veryHighFall) {
             this.highFall = false;
@@ -228,6 +235,12 @@ final class Spot
         this.isLanded = true;
         this.allowJump = true;
         this.ySpeed = 0;
+
+        this.highestTouchedPlatform = Math.max(this.highestTouchedPlatform,
+                platform);
+        final int previousPlatform = this.lastTouchedPlatform;
+        this.lastTouchedPlatform = platform;
+        callLandListeners(platform, previousPlatform);
     }
 
     final void setYSpeed(int speed)
@@ -307,7 +320,7 @@ final class Spot
                 }
 
                 this.accelerateDirection = Spot.RIGHTACC;
-                this.game.onSpotCollidedWall();
+                callCollideListeners();
             }
         } else if (xSpeed_normalized > 0) {
             if (xSpeed_normalized + xPos + 8 > 159) {
@@ -320,7 +333,7 @@ final class Spot
                 }
 
                 this.accelerateDirection = Spot.LEFTACC;
-                this.game.onSpotCollidedWall();
+                callCollideListeners();
             }
         }
     }
@@ -344,8 +357,7 @@ final class Spot
         final int touchedPlatform = this.platformLayer.checkCollision(this);
 
         if ((this.ySpeed <= 0) && (touchedPlatform != -1)) {
-            this.landSpot();
-            this.game.onSpotLanded(touchedPlatform);
+            this.landSpot(touchedPlatform);
         } else if ((this.ySpeed == 0) && (touchedPlatform == -1)) {
             if (this.isLanded) { // spot lost platform contact in this frame
                 this.allowJump = true; // allow jumping for one more frame!
@@ -353,6 +365,45 @@ final class Spot
             this.isLanded = false;
         } else {
             this.allowJump = false;
+        }
+    }
+
+    final int getLastTouchedPlatform()
+    {
+        return this.lastTouchedPlatform;
+    }
+
+    final int getHighestTouchedPlatform()
+    {
+        return this.highestTouchedPlatform;
+    }
+
+    final void addSpotEventListener(SpotEventListener listener)
+    {
+        this.eventListeners.add(listener);
+    }
+
+    private final void callJumpListeners(int platform)
+    {
+        final int size = this.eventListeners.size();
+        for (int i = 0; i < size; i++) {
+            this.eventListeners.get(i).onSpotJumped(platform);
+        }
+    }
+
+    private final void callLandListeners(int platform, int previousPlatform)
+    {
+        final int size = this.eventListeners.size();
+        for (int i = 0; i < size; i++) {
+            this.eventListeners.get(i).onSpotLanded(platform, previousPlatform);
+        }
+    }
+
+    private final void callCollideListeners()
+    {
+        final int size = this.eventListeners.size();
+        for (int i = 0; i < size; i++) {
+            this.eventListeners.get(i).onSpotCollidedWall();
         }
     }
 
