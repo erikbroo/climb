@@ -1,7 +1,6 @@
 package com.googlecode.climb.game.utils;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Rect;
 
 
@@ -10,7 +9,6 @@ import android.graphics.Rect;
  */
 public class Sprite
 {
-
     private final Bitmap bitmap;
 
     private final int numFrameColumns;
@@ -90,19 +88,14 @@ public class Sprite
     /**
      * @param canvas
      */
-    public void doDraw(Canvas canvas)
-    {
-        doDraw(canvas, this.currentFrame);
-    }
-
-    public void doDraw(Canvas canvas, int frame)
+    protected void doDraw(LayerCanvas canvas)
     {
         final int height = this.frameHeight;
         final int width = this.frameWidth;
         final int dstX = this.xPosition;
         final int dstY = this.yPosition;
-        final int srcX = calculateBitmapX(frame);
-        final int srcY = calculateBitmapY(frame);
+        final int srcX = calculateBitmapX(this.currentFrame);
+        final int srcY = calculateBitmapY(this.currentFrame);
 
         this.tempSrcRect.set(srcX, srcY, srcX + width, srcY + height);
         this.tempDstRect.set(dstX, dstY, dstX + width, dstY + height);

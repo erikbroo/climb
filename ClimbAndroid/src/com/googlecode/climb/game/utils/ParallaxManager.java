@@ -6,7 +6,7 @@ import java.util.Comparator;
 /**
  * A class managing several layers capable of parallax-scrolling.
  */
-public final class ParallaxManager
+public class ParallaxManager
 {
     private final SortedArrayList<ParallaxLayer> layers;
     {
@@ -56,17 +56,38 @@ public final class ParallaxManager
 
     public final void setViewX(int x)
     {
-        for (int i = 0; i < this.numberOfLayers; i++) {
-            final ParallaxLayer layer = this.layers.get(i);
-            layer.setViewX(x);
-        }
+        setView(x, 0);
     }
 
     public final void setViewY(int y)
     {
+        setView(0, y);
+    }
+
+    /**
+     * Moves the view for this manager, which will automatically move the view
+     * of all added layers with respect to their depth attributes.
+     * 
+     * @param x
+     *            x-coordinate of the new view
+     * @param y
+     *            y-coordinate of the new view
+     */
+    public final void moveView(int x, int y)
+    {
         for (int i = 0; i < this.numberOfLayers; i++) {
             final ParallaxLayer layer = this.layers.get(i);
-            layer.setViewY(y);
+            layer.moveView(x, y);
         }
+    }
+
+    public final void moveViewX(int x)
+    {
+        moveView(x, 0);
+    }
+
+    public final void moveViewY(int y)
+    {
+        moveView(0, y);
     }
 }

@@ -1,11 +1,9 @@
 package com.googlecode.climb.game;
 
-import com.googlecode.climb.game.utils.RingList;
-
-
 /**
  * Represents an infinitely long sequence of random platforms. This class stores
- * only the interval [start,end] of currently visible platforms.
+ * only the interval [start,end] of currently visible platforms. This class
+ * reuses old instances of the Platform class.
  */
 final class PlatformSequence
 {
@@ -15,22 +13,25 @@ final class PlatformSequence
     final static int PLATFORM_DISTANCE = 30;
 
     /**
-     * All platforms have the same height of 10.
-     */
-    final static int PLATFORM_HEIGHT = 10;
-
-    /**
      * Visible platform count is view_height / platform_distance. We are adding
-     * additional 3 platforms here: they will not be visible, but be below the
+     * additional 5 platforms here: they will not be visible, but be below the
      * visible view (this way the player can try to save his life when falling
      * below the visible view).
      */
     final static int VISIBLE_PLATFORM_COUNT = Game.VIRTUAL_CANVAS_HEIGHT
             / (PlatformSequence.PLATFORM_DISTANCE) + 5;
 
-    final static int LOWEST_PLATFORM_YPOS = 5;
+    final static int LOWEST_PLATFORM_YPOS = 30;
 
-    private final RingList<Platform> platformList;
+    /**
+     * A circular list for the visible platforms.
+     */
+    private final Platform[] platforms = new Platform[VISIBLE_PLATFORM_COUNT];
+
+    /**
+     * An index for the current first element in the circular platforms list.
+     */
+    private int platformListIndex;
 
     private int topmostVisiblePlatform;
 
@@ -39,7 +40,6 @@ final class PlatformSequence
     public PlatformSequence(PlatformLayer platformLayer)
     {
         this.platformLayer = platformLayer;
-        this.platformList = new RingList<Platform>(PlatformSequence.VISIBLE_PLATFORM_COUNT);
         initializeList();
     }
 
@@ -48,20 +48,43 @@ final class PlatformSequence
      */
     private final void initializeList()
     {
-        // the first platform:
-        this.platformList.add(Platform.createPlatform(0, this.platformLayer));
-        // remaining initial platforms:
-        setHighestVisiblePlatform(PlatformSequence.VISIBLE_PLATFORM_COUNT - 1);
-    }
-
-    final Platform getPlatform(int index)
-    {
-        if ((index < 0) || (index >= this.platformList.getSize())) {
-            throw new IllegalArgumentException("Index must be in the interval [0,"
-                    + (this.platformList.getSize() - 1) + "]: " + index);
+        for (int i = 0; i < VISIBLE_PLATFORM_COUNT; i++) {
+            this.platforms[i] = new Platform(this.platformLayer);
         }
 
-        return this.platformList.get(index);
+        // the first platform:
+        this.platforms[0].setNewAttributes(0);
+        // remaining initial platforms:
+        setHighestVisiblePlatform(PlatformSequence.VISIBLE_PLATFORM_COUNT - 1);
+
+        // // the first platform:
+        // this.platformList.add(Platform.createPlatform(0,
+        // this.platformLayer));
+        // // remaining initial platforms:
+        // setHighestVisiblePlatform(PlatformSequence.VISIBLE_PLATFORM_COUNT -
+        // 1);
+    }
+
+    /**
+     * Returns one of the visible platforms. The index specifies how high the
+     * returned platform is. Specifying an index of 0 will return the highest
+     * currently visible platform. Higher indizes will return lower platforms.
+     * 
+     * @param index
+     * @return
+     */
+    final Platform getPlatform(int index)
+    {
+        if ((index < 0) || (index >= this.platforms.length)) {
+            throw new IllegalArgumentException("Index must be in the interval [0,"
+                    + (this.platforms.length - 1) + "]: " + index);
+        }
+
+        int realIndex = this.platformListIndex - index;
+        if (realIndex < 0) {
+            realIndex = this.platforms.length + realIndex;
+        }
+        return this.platforms[realIndex];
     }
 
     /**
@@ -81,16 +104,10 @@ final class PlatformSequence
             return;
         }
 
-        // if (platform < this.topmostVisiblePlatform) {
-        // throw new IllegalArgumentException("new highest < previous highest: "
-        // + platform + " < " + this.topmostVisiblePlatform);
-        // }
-
         while (this.topmostVisiblePlatform < platform) {
             this.topmostVisiblePlatform += 1;
-            final Platform newPlatform = Platform.createPlatform(
-                    this.topmostVisiblePlatform, this.platformLayer);
-            this.platformList.add(newPlatform);
+            this.platformListIndex += 1;
+            this.platforms[this.platformListIndex].setNewAttributes(this.topmostVisiblePlatform);
         }
     }
 
@@ -110,11 +127,6 @@ final class PlatformSequence
         this.setHighestVisiblePlatform(topmostPlatformIndex);
     }
 
-    final int visiblePlatformCount()
-    {
-        return this.platformList.getSize();
-    }
-
     /**
      * @param spot
      * @return
@@ -131,7 +143,7 @@ final class PlatformSequence
         }
 
         final int platformWidth = lowerPlatform.getWidth();
-        final int platformHeight = lowerPlatform.getHeight();
+        final int platformHeight = Platform.PLATFORM_HEIGHT;
         final int platformX = lowerPlatform.getPosition().getLayerX();
         final int platformY = lowerPlatform.getPosition().getLayerY();
 
@@ -173,6 +185,10 @@ final class PlatformSequence
             return null;
         }
 
-        return this.platformList.get(index);
+        int realIndex = this.platformListIndex - index;
+        if (realIndex < 0) {
+            realIndex = this.platforms.length + realIndex;
+        }
+        return this.platforms[realIndex];
     }
 }

@@ -44,13 +44,12 @@ final class PlatformLayer extends ParallaxLayer
 
     private final PlatformSequence platformSequence;
 
-    PlatformLayer(Game game)
+    PlatformLayer(Resources resources)
     {
-        super(PlatformLayer.PlatformLayer_DEPTH);
+        super(PlatformLayer.PlatformLayer_DEPTH, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT);
 
         this.platformSequence = new PlatformSequence(this);
 
-        final Resources resources = game.getResources();
         this.platform_30_image = BitmapFactory.decodeResource(resources,
                 R.drawable.platform_30);
         this.platform_50_image = BitmapFactory.decodeResource(resources,
@@ -69,12 +68,12 @@ final class PlatformLayer extends ParallaxLayer
 
     final void doDraw(Canvas canvas)
     {
-        for (int i = 0; i < this.platformSequence.visiblePlatformCount(); i++) {
+        for (int i = 0; i < PlatformSequence.VISIBLE_PLATFORM_COUNT; i++) {
 
             final Platform platform = this.platformSequence.getPlatform(i);
 
             final int width = platform.getWidth();
-            final int height = platform.getHeight();
+            final int height = Platform.PLATFORM_HEIGHT;
             final int xPos = platform.getPosition().getVirtualScreenX();
             final int yPos = platform.getPosition().getVirtualScreenY();
 
@@ -133,4 +132,15 @@ final class PlatformLayer extends ParallaxLayer
         return this.platformSequence.getCollidingPlatform(spot);
     }
 
+    /**
+     * @param comboPlatform
+     * @return
+     */
+    final int getScreenY(int platformIndex)
+    {
+        final int worldY = PlatformSequence.LOWEST_PLATFORM_YPOS
+                + platformIndex * PlatformSequence.PLATFORM_DISTANCE;
+
+        return Game.VIRTUAL_CANVAS_HEIGHT - (worldY - getViewY());
+    }
 }

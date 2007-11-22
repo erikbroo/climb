@@ -15,25 +15,25 @@ import com.googlecode.climb.GameActivity;
 /**
  * 
  */
-public final class Game extends View
+public final class Game extends View implements SpotEventListener, KeyEngine
 {
     private static final String LOG_TAG = "Game";
 
-    private static final int STATE_WAITING = 0;
+    public final static Random RANDOM = new Random();
 
-    private static final int STATE_RUNNING = 1;
+    private static final int GAMESTATE_WAITING = 0;
 
-    private static final int STATE_PAUSED = 2;
+    private static final int GAMESTATE_RUNNING = 1;
 
-    private static final int STATE_GAMEOVER_SEQUENCE = 3;
+    private static final int GAMESTATE_PAUSED = 2;
 
-    private static final int STATE_FINISHING = 4;
+    private static final int GAMESTATE_GAMEOVER_SEQUENCE = 3;
 
-    private static final int STATE_FINISHED = 5;
+    private static final int GAMESTATE_FINISHING = 4;
+
+    private static final int GAMESTATE_FINISHED = 5;
 
     private static final long LOGIC_UPDATE_RATE = 50; // 50 millisec
-
-    static final Random RANDOM = new Random();
 
     /**
      * Climb 2 assumes a rendering canvas height of 208 pixels. All logic and
@@ -73,23 +73,23 @@ public final class Game extends View
 
     private boolean pressedMoveRightKey = false;
 
-    final World world;
+    private final World world;
 
-    final ScorePanel scorePanel;
+    private final ScorePanel scorePanel;
 
-    final ComboMeter comboMeter;
+    private final ComboMeter comboMeter;
 
-    final MessagePopup messagePopup;
+    private final MessagePopup messagePopup;
 
-    private int highestTouchedPlatform;
+    private final Water water;
 
-    private int lastTouchedPlatform;
+    private final Spot spot;
 
-    private int currentCent;
+    private int currentLevel;
 
-    private int gameState = Game.STATE_WAITING;
+    private int gameState = Game.GAMESTATE_WAITING;
 
-    private long lastUpdate;
+    private long lastLogicUpdate;
 
     private GameActivity activity;
 
@@ -110,10 +110,17 @@ public final class Game extends View
 
         setFocusable(true);
 
-        this.world = new World(this);
-        this.messagePopup = new MessagePopup(this);
+        this.world = new World(getResources());
+        final PlatformLayer platformLayer = this.world.getPlatformLayer();
+        this.water = new Water(getResources(), platformLayer);
+        this.spot = new Spot(platformLayer, getResources(), this);
+        this.messagePopup = new MessagePopup(this, this.spot, platformLayer);
         this.comboMeter = new ComboMeter(this.messagePopup);
-        this.scorePanel = new ScorePanel(this.messagePopup, this.comboMeter, this.world.water);
+        this.scorePanel = new ScorePanel(this.messagePopup, this.comboMeter, this.water);
+
+        this.spot.addSpotEventListener(this);
+        this.spot.addSpotEventListener(this.comboMeter);
+        this.spot.addSpotEventListener(this.scorePanel);
     }
 
     /**
@@ -145,8 +152,8 @@ public final class Game extends View
     {
         super.onKeyDown(keyCode, event);
 
-        if (this.gameState == Game.STATE_WAITING) {
-            this.gameState = Game.STATE_RUNNING;
+        if (this.gameState == Game.GAMESTATE_WAITING) {
+            this.gameState = Game.GAMESTATE_RUNNING;
         }
 
         if (keyCode == this.keyJump) {
@@ -185,7 +192,7 @@ public final class Game extends View
 
     public final void startGameLogic(GameActivity activity)
     {
-        if (this.gameState != Game.STATE_WAITING) {
+        if (this.gameState != Game.GAMESTATE_WAITING) {
             throw new IllegalStateException();
         }
 
@@ -198,8 +205,8 @@ public final class Game extends View
 
     public final void resumeGameLogic()
     {
-        if (this.gameState == Game.STATE_PAUSED) {
-            this.gameState = Game.STATE_RUNNING;
+        if (this.gameState == Game.GAMESTATE_PAUSED) {
+            this.gameState = Game.GAMESTATE_RUNNING;
             this.comboMeter.resume();
             this.scorePanel.resume();
             invalidate();
@@ -208,8 +215,8 @@ public final class Game extends View
 
     public final void pauseGameLogic()
     {
-        if (this.gameState == Game.STATE_RUNNING) {
-            this.gameState = Game.STATE_PAUSED;
+        if (this.gameState == Game.GAMESTATE_RUNNING) {
+            this.gameState = Game.GAMESTATE_PAUSED;
             this.comboMeter.pause();
             this.scorePanel.pause();
         }
@@ -233,48 +240,48 @@ public final class Game extends View
     private final void doUpdate()
     {
         final long thisUpdate = System.currentTimeMillis();
-        if (thisUpdate - this.lastUpdate < Game.LOGIC_UPDATE_RATE) {
+        if (thisUpdate - this.lastLogicUpdate < Game.LOGIC_UPDATE_RATE) {
             return;
         }
-        this.lastUpdate = thisUpdate;
+        this.lastLogicUpdate = thisUpdate;
 
         switch (this.gameState) {
-            case STATE_WAITING:
+            case GAMESTATE_WAITING:
                 return;
-            case STATE_RUNNING:
+            case GAMESTATE_RUNNING:
 
                 this.world.doUpdate(thisUpdate);
                 this.scorePanel.doUpdate(thisUpdate);
                 this.comboMeter.doUpdate(thisUpdate);
 
-                final int spotY = this.world.spot.getPosition().getVirtualScreenY();
-                final int waterY = this.world.water.getPosition().getVirtualScreenY();
+                final int spotY = this.spot.getPosition().getVirtualScreenY();
+                final int waterY = this.water.getPosition().getVirtualScreenY();
                 if (spotY > Game.VIRTUAL_CANVAS_HEIGHT + 25) {
-                    this.gameState = Game.STATE_GAMEOVER_SEQUENCE;
+                    this.gameState = Game.GAMESTATE_GAMEOVER_SEQUENCE;
                     this.messagePopup.registerMSG("Game Over", Color.rgb(255,
                             100, 10));
                 }
                 if (spotY > waterY + 20) {
-                    this.gameState = Game.STATE_GAMEOVER_SEQUENCE;
+                    this.gameState = Game.GAMESTATE_GAMEOVER_SEQUENCE;
                     this.messagePopup.registerMSG("Game Over", Color.rgb(255,
                             100, 10));
                 }
                 break;
-            case STATE_PAUSED:
+            case GAMESTATE_PAUSED:
                 return;
-            case STATE_GAMEOVER_SEQUENCE:
-                final int waterScreenY = this.world.water.getPosition().getVirtualScreenY();
+            case GAMESTATE_GAMEOVER_SEQUENCE:
+                final int waterScreenY = this.water.getPosition().getVirtualScreenY();
                 if (waterScreenY < 0) {
-                    this.gameState = Game.STATE_FINISHING;
+                    this.gameState = Game.GAMESTATE_FINISHING;
                 }
-                this.world.water.rise(10);
-                this.world.spot.getPosition().add(0, -1);
+                this.water.rise(10);
+                this.spot.getPosition().add(0, -1);
                 break;
-            case STATE_FINISHING:
+            case GAMESTATE_FINISHING:
                 this.activity.onGameFinished();
-                this.gameState = Game.STATE_FINISHED;
+                this.gameState = Game.GAMESTATE_FINISHED;
                 return;
-            case STATE_FINISHED:
+            case GAMESTATE_FINISHED:
                 return;
             default:
                 throw new IllegalStateException("illegal gamestate: "
@@ -287,8 +294,7 @@ public final class Game extends View
         canvas.drawARGB(255, 0, 0, 0);
 
         transformCanvas(canvas);
-        canvas.clipRect(0, 0, Game.VIRTUAL_CANVAS_WIDTH,
-                Game.VIRTUAL_CANVAS_HEIGHT);
+        canvas.clipRect(0, 0, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT);
 
         this.world.doDraw(canvas);
         this.scorePanel.doDraw(canvas);
@@ -325,42 +331,6 @@ public final class Game extends View
         canvas.scale(scale, scale);
     }
 
-    /**
-     * Called when the ball jumps.
-     */
-    final void onSpotJumped()
-    {
-        this.comboMeter.onSpotJumped(this.lastTouchedPlatform);
-    }
-
-    /**
-     * Called when the ball lands on the specified platform.
-     * 
-     * @param platform
-     */
-    final void onSpotLanded(int platform)
-    {
-        this.highestTouchedPlatform = (short) Math.max(
-                this.highestTouchedPlatform, platform);
-        this.lastTouchedPlatform = platform;
-
-        this.comboMeter.onSpotLanded(platform);
-        this.scorePanel.onSpotLanded(platform);
-
-        if ((platform % 100) < 3) { // remember we can jump 3 platforms at once!
-            if ((platform / 100) > this.currentCent) {
-                this.world.water.setWaterSpeedLevel(0);
-                this.currentCent++;
-                this.scorePanel.resetTimer();
-            }
-        }
-    }
-
-    final void onSpotCollidedWall()
-    {
-        this.comboMeter.onSpotCollided();
-    }
-
     public final void setKeys(int keyJump, int keyMoveLeft, int keyMoveRight)
     {
         Log.d(Game.LOG_TAG, "Received key settings (jump,left,right): ("
@@ -371,39 +341,6 @@ public final class Game extends View
         this.keyMoveRight = keyMoveRight;
     }
 
-    /**
-     * Returns whether the jump key has been pressed by the user during the last
-     * frame.
-     * 
-     * @return
-     */
-    final boolean isJumpKeyPressed()
-    {
-        return this.pressedJumpKey;
-    }
-
-    /**
-     * Returns whether the move-left key has been pressed by the user during the
-     * last frame.
-     * 
-     * @return
-     */
-    final boolean isMoveLeftKeyPressed()
-    {
-        return this.pressedMoveLeftKey;
-    }
-
-    /**
-     * Returns whether the move-right key has been pressed by the user during
-     * the last frame.
-     * 
-     * @return
-     */
-    final boolean isMoveRightKeyPressed()
-    {
-        return this.pressedMoveRightKey;
-    }
-
     public int getTotalScore()
     {
         return this.scorePanel.getScore();
@@ -411,7 +348,7 @@ public final class Game extends View
 
     public int getHighestTouchedPlatform()
     {
-        return this.highestTouchedPlatform;
+        return this.spot.getHighestTouchedPlatform();
     }
 
     /**
@@ -419,6 +356,64 @@ public final class Game extends View
      */
     public void forceQuit()
     {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void onSpotJumped(int platform)
+    {
+        this.comboMeter.onSpotJumped(platform);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void onSpotLanded(int platform, int previousPlatform)
+    {
+        if ((platform % 100) < 3) { // remember we can jump 3 platforms at once!
+            if ((platform / 100) > this.currentLevel) {
+                this.currentLevel += 1;
+                this.scorePanel.onNewLevel();
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void onSpotCollidedWall()
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isJumpPressed()
+    {
+        return this.pressedJumpKey;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isMoveLeftPressed()
+    {
+        return this.pressedMoveLeftKey;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isMoveRightPressed()
+    {
+        return this.pressedMoveRightKey;
     }
 
 }

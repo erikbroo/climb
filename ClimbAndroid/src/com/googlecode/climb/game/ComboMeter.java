@@ -12,7 +12,7 @@ import android.graphics.Paint.Style;
 /**
  *
  */
-final class ComboMeter
+final class ComboMeter implements SpotEventListener
 {
     private final static int BAR_TOP = ScorePanel.SCORE_TOP + 3;
 
@@ -139,37 +139,6 @@ final class ComboMeter
         final int i = (this.cycleIndex + index) % this.event.length;
 
         return this.onPlatform[i];
-    }
-
-    /**
-     * Called when the ball jumps.
-     * 
-     * @param fromPlatform
-     *            ball jumped from this platform
-     */
-    final void onSpotJumped(int fromPlatform)
-    {
-        // this.fillComboBar();
-
-        addEvent(ComboMeter.JUMPED, fromPlatform);
-    }
-
-    /**
-     * Called when the ball lands on the specified platform.
-     * 
-     * @param platform
-     */
-    final void onSpotLanded(int platform)
-    {
-        addEvent(ComboMeter.LANDED, platform);
-
-        // this.comboBarLength = Math.max(this.comboBarLength * 2 / 3, 1);
-        checkForCombo();
-    }
-
-    final void onSpotCollided()
-    {
-        addEvent(ComboMeter.COLLIDED, ComboMeter.NO_ENTRY);
     }
 
     /**
@@ -361,14 +330,15 @@ final class ComboMeter
         if ((this.lastCombo == ComboMeter.EAGLE)
                 && (this.lastPlatform == getPlatform(9))) {
             this.multiplicator += 4;
-            this.popup.registerComboString("same eagle");
+            this.popup.registerComboString("same eagle (+4)", this.lastPlatform);
         } else if (this.eagleComboCount >= 3) {
             this.eagleComboCount = 0;
             this.multiplicator += 3;
-            this.popup.registerComboString("triple eagle");
+            this.popup.registerComboString("triple eagle  (+3)",
+                    this.lastPlatform);
         } else {
             this.multiplicator += 1;
-            this.popup.registerComboString("eagle");
+            this.popup.registerComboString("eagle (+1)", this.lastPlatform);
         }
 
         this.lastPlatform = getPlatform(9);
@@ -385,14 +355,16 @@ final class ComboMeter
         if ((this.lastCombo == ComboMeter.SHARKY)
                 && (this.lastPlatform == getPlatform(9))) {
             this.multiplicator += 6;
-            this.popup.registerComboString("same sharky");
+            this.popup.registerComboString("same sharky (+6)",
+                    this.lastPlatform);
         } else if (this.sharkyComboCount >= 2) {
             this.sharkyComboCount = 0;
             this.multiplicator += 4;
-            this.popup.registerComboString("double sharky");
+            this.popup.registerComboString("double sharky (+4)",
+                    this.lastPlatform);
         } else {
             this.multiplicator += 2;
-            this.popup.registerComboString("sharky");
+            this.popup.registerComboString("sharky (+2)", this.lastPlatform);
         }
 
         this.lastPlatform = getPlatform(9);
@@ -409,10 +381,10 @@ final class ComboMeter
         if ((this.lastCombo == ComboMeter.WALLY)
                 && (this.lastPlatform == getPlatform(9))) {
             this.multiplicator += 8;
-            this.popup.registerComboString("same wally");
+            this.popup.registerComboString("same wally (+8)", this.lastPlatform);
         } else {
             this.multiplicator += 4;
-            this.popup.registerComboString("wally");
+            this.popup.registerComboString("wally (+4)", this.lastPlatform);
         }
 
         this.lastPlatform = getPlatform(9);
@@ -429,10 +401,10 @@ final class ComboMeter
         if ((this.lastCombo == ComboMeter.FOXY)
                 && (this.lastPlatform == getPlatform(9))) {
             this.multiplicator += 6;
-            this.popup.registerComboString("same foxy");
+            this.popup.registerComboString("same foxy (+6)", this.lastPlatform);
         } else {
             this.multiplicator += 3;
-            this.popup.registerComboString("foxy");
+            this.popup.registerComboString("foxy (+3)", this.lastPlatform);
         }
 
         this.lastPlatform = getPlatform(9);
@@ -449,10 +421,11 @@ final class ComboMeter
         if ((this.lastCombo == ComboMeter.WOODY)
                 && (this.lastPlatform == getPlatform(9))) {
             this.multiplicator += 12;
-            this.popup.registerComboString("same woody");
+            this.popup.registerComboString("same woody (+12)",
+                    this.lastPlatform);
         } else {
             this.multiplicator += 6;
-            this.popup.registerComboString("woody");
+            this.popup.registerComboString("woody (+6)", this.lastPlatform);
         }
 
         this.lastPlatform = getPlatform(9);
@@ -468,11 +441,12 @@ final class ComboMeter
 
         if ((this.lastCombo == ComboMeter.CATTY)
                 && (this.lastPlatform == getPlatform(9))) {
-            this.multiplicator += 10;
-            this.popup.registerComboString("same catty");
+            this.multiplicator += 15;
+            this.popup.registerComboString("same catty (+15)",
+                    this.lastPlatform);
         } else {
             this.multiplicator += 4;
-            this.popup.registerComboString("catty");
+            this.popup.registerComboString("catty (+4)", this.lastPlatform);
         }
 
         this.lastPlatform = getPlatform(9);
@@ -489,10 +463,11 @@ final class ComboMeter
         if ((this.lastCombo == ComboMeter.DOGGY)
                 && (this.lastPlatform == getPlatform(9))) {
             this.multiplicator += 16;
-            this.popup.registerComboString("same doggy");
+            this.popup.registerComboString("same doggy (+16)",
+                    this.lastPlatform);
         } else {
             this.multiplicator += 8;
-            this.popup.registerComboString("doggy");
+            this.popup.registerComboString("doggy (+8)", this.lastPlatform);
         }
 
         this.lastPlatform = getPlatform(9);
@@ -574,5 +549,34 @@ final class ComboMeter
     final int getMultiplicator()
     {
         return this.multiplicator;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void onSpotJumped(int platform)
+    {
+        addEvent(ComboMeter.JUMPED, platform);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void onSpotLanded(int platform, int previousPlatform)
+    {
+        addEvent(ComboMeter.LANDED, platform);
+
+        checkForCombo();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final void onSpotCollidedWall()
+    {
+        addEvent(ComboMeter.COLLIDED, ComboMeter.NO_ENTRY);
     }
 }

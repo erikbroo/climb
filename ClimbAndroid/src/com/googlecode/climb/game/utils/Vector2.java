@@ -54,7 +54,8 @@ public class Vector2
 
     public int getVirtualScreenY()
     {
-        return this.virtualScreenWidth - (this.world_y - this.layer.getViewY());
+        return this.virtualScreenHeight
+                - (this.world_y - this.layer.getViewY());
     }
 
     /**
