@@ -35,6 +35,10 @@ final class ScorePanel implements SpotEventListener
 
     private final static int TIMER_BOTTOM = TIMER_TOP + 16;
 
+    private final static int INITIAL_BASE_TIME = 150;
+
+    private final static int TIME_DECREASE_PER_LEVEL = 5;
+
     private final Paint panel_paint = new Paint();
     {
         this.panel_paint.setStyle(Style.FILL);
@@ -83,13 +87,11 @@ final class ScorePanel implements SpotEventListener
      */
     private final StringBuilder stringBuilder = new StringBuilder();
 
-    private int baseTime = 150;
+    private int baseTime = INITIAL_BASE_TIME;
 
-    private int timer;
+    private int currentTimer;
 
     private long lastUpdate;
-
-    // private int lastPlatform;
 
     private final ComboMeter comboMeter;
 
@@ -173,7 +175,7 @@ final class ScorePanel implements SpotEventListener
     final void init()
     {
         this.lastUpdate = System.currentTimeMillis();
-        this.timer = this.baseTime;
+        this.currentTimer = this.baseTime;
     }
 
     final void pause()
@@ -194,28 +196,28 @@ final class ScorePanel implements SpotEventListener
         // + (thisUpdate - this.lastUpdate));
 
         if (thisUpdate - this.lastUpdate > 1000) { // 1 sec
-            this.timer--;
+            this.currentTimer--;
             this.lastUpdate += 1000;
 
-            if (this.timer == 100) {
+            if (this.currentTimer == 100) {
                 this.messagePopup.registerMSG("Hurry Up!", Color.RED);
-            } else if (this.timer == 50) {
+            } else if (this.currentTimer == 50) {
                 this.messagePopup.registerMSG("Hurry Up!", Color.RED);
-            } else if (this.timer == 10) {
+            } else if (this.currentTimer == 10) {
                 this.messagePopup.registerMSG("Hurry Up!", Color.RED);
-            } else if (this.timer == 0) {
+            } else if (this.currentTimer == 0) {
                 this.messagePopup.registerMSG("Hurry Up", Color.RED);
             }
 
-            if (this.timer <= 0) {
+            if (this.currentTimer <= 0) {
                 this.water.setWaterSpeedLevel(6);
-            } else if (this.timer <= 10) {
+            } else if (this.currentTimer <= 10) {
                 this.water.setWaterSpeedLevel(5);
-            } else if (this.timer <= 25) {
+            } else if (this.currentTimer <= 50) {
                 this.water.setWaterSpeedLevel(4);
-            } else if (this.timer <= 75) {
+            } else if (this.currentTimer <= 100) {
                 this.water.setWaterSpeedLevel(3);
-            } else if (this.timer <= 125) {
+            } else if (this.currentTimer <= 125) {
                 this.water.setWaterSpeedLevel(2);
             } else {
                 this.water.setWaterSpeedLevel(1);
@@ -227,31 +229,31 @@ final class ScorePanel implements SpotEventListener
     {
         this.stringBuilder.delete(0, this.stringBuilder.length());
 
-        if (this.timer < 0) {
+        if (this.currentTimer < 0) {
             return "000";
-        } else if (this.timer < 10) {
+        } else if (this.currentTimer < 10) {
             this.stringBuilder.append("00");
-            this.stringBuilder.append(this.timer);
+            this.stringBuilder.append(this.currentTimer);
             return this.stringBuilder.toString();
-        } else if (this.timer < 100) {
+        } else if (this.currentTimer < 100) {
             this.stringBuilder.append("0");
-            this.stringBuilder.append(this.timer);
+            this.stringBuilder.append(this.currentTimer);
             return this.stringBuilder.toString();
         } else {
-            return Integer.toString(this.timer);
+            return Integer.toString(this.currentTimer);
         }
     }
 
     private void resetTimer()
     {
-        this.baseTime -= 5;
-        if (this.timer > 0) {
-            this.score += (this.timer * 10);
+        this.baseTime -= TIME_DECREASE_PER_LEVEL;
+        if (this.currentTimer > 0) {
+            this.score += (this.currentTimer * 10);
             this.messagePopup.registerMSG("TIME BONUS", Color.CYAN);
         } else {
             this.messagePopup.registerMSG("NO TIME BONUS", Color.CYAN);
         }
-        this.timer = this.baseTime;
+        this.currentTimer = this.baseTime;
     }
 
     /**

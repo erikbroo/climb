@@ -107,6 +107,7 @@ final class PlatformSequence
         while (this.topmostVisiblePlatform < platform) {
             this.topmostVisiblePlatform += 1;
             this.platformListIndex += 1;
+            this.platformListIndex %= this.platforms.length;
             this.platforms[this.platformListIndex].setNewAttributes(this.topmostVisiblePlatform);
         }
     }

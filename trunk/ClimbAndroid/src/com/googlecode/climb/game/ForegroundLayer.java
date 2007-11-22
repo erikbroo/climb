@@ -104,10 +104,12 @@ final class ForegroundLayer extends ParallaxLayer
 
         for (int i = 0; i < NUMBER_OF_CELLS; i++) {
             this.backgroundSprite.setPosition(0, y);
-            this.backgroundSprite.doDraw(canvas, this.cellListLeft.get(i));
+            this.backgroundSprite.setFrame(this.cellListLeft.get(i));
+            this.backgroundSprite.doDraw(canvas);
             this.backgroundSprite.setPosition(Game.VIRTUAL_CANVAS_WIDTH
                     - CELL_WIDTH, y);
-            this.backgroundSprite.doDraw(canvas, this.cellListRight.get(i));
+            this.backgroundSprite.setFrame(this.cellListRight.get(i));
+            this.backgroundSprite.doDraw(canvas);
             y += CELL_HEIGHT;
         }
     }

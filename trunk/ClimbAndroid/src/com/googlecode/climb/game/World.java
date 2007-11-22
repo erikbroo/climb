@@ -13,11 +13,18 @@ final class World extends ParallaxManager
 
     private final ForegroundLayer foregroundLayer;
 
-    World(Resources resources)
+    private final Spot spot;
+
+    private final Water water;
+
+    World(Resources resources, KeyEngine keyEngine)
     {
         this.platformLayer = new PlatformLayer(resources);
         this.backgroundLayer = new BackgroundLayer(resources);
         this.foregroundLayer = new ForegroundLayer(resources);
+
+        this.water = new Water(resources, this.platformLayer);
+        this.spot = new Spot(this.platformLayer, resources, keyEngine);
 
         addParallaxLayer(this.platformLayer);
         addParallaxLayer(this.backgroundLayer);
@@ -39,17 +46,17 @@ final class World extends ParallaxManager
 
         final int spotScreenY = this.spot.getPosition().getVirtualScreenY();
         if (spotScreenY < 40) {
-            this.parallaxManager.moveView(0, 6);
+            moveView(0, 6);
         } else if (spotScreenY < 60) {
-            this.parallaxManager.moveView(0, 5);
+            moveView(0, 5);
         } else if (spotScreenY < 80) {
-            this.parallaxManager.moveView(0, 4);
+            moveView(0, 4);
         } else if (spotScreenY < 100) {
-            this.parallaxManager.moveView(0, 3);
+            moveView(0, 3);
         } else if (spotScreenY < 120) {
-            this.parallaxManager.moveView(0, 2);
+            moveView(0, 2);
         } else if (spotScreenY < 140) {
-            this.parallaxManager.moveView(0, 1);
+            moveView(0, 1);
         }
 
         this.platformLayer.doUpdate();
@@ -62,5 +69,15 @@ final class World extends ParallaxManager
     final PlatformLayer getPlatformLayer()
     {
         return this.platformLayer;
+    }
+
+    final Spot getSpot()
+    {
+        return this.spot;
+    }
+
+    final Water getWater()
+    {
+        return this.water;
     }
 }
