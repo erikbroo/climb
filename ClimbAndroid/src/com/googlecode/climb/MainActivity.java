@@ -25,9 +25,14 @@ public class MainActivity extends Activity
     private static final int SUBACT_SETTINGS = 2;
 
     /**
+     * Subactivity request code for highscore.
+     */
+    private static final int SUBACT_HIGHSCORE = 3;
+
+    /**
      * Subactivity request code for credits.
      */
-    private static final int SUBACT_CREDITS = 3;
+    private static final int SUBACT_CREDITS = 4;
 
     /**
      * Called when the activity is first created.
@@ -120,6 +125,9 @@ public class MainActivity extends Activity
      */
     private void startHighscore()
     {
+        final Intent intent = new Intent();
+        intent.setClass(this, HighscoreActivity.class);
+        startSubActivity(intent, MainActivity.SUBACT_HIGHSCORE);
     }
 
     /**
@@ -131,7 +139,7 @@ public class MainActivity extends Activity
     {
         switch (requestCode) {
             case SUBACT_GAME:
-                startHighscore();
+                // startHighscore();
                 break;
             default:
                 break;
@@ -159,6 +167,9 @@ public class MainActivity extends Activity
                     break;
                 case R.string.menu_label_credits:
                     startCredits();
+                    break;
+                case R.string.menu_label_highscore:
+                    startHighscore();
                     break;
                 case R.string.menu_label_close:
                     MainActivity.this.finish();

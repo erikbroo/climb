@@ -15,6 +15,8 @@
         
         <activity class=".SettingsActivity" />
         
+        <activity class=".HighscoreActivity" />
+        
         <activity class=".CreditsActivity" />
     </application>
 </manifest> 
