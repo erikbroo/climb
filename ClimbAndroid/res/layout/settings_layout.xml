@@ -8,21 +8,77 @@
     <TextView 
             android:layout_width="fill_parent" 
             android:layout_height="wrap_content" 
-            android:text="Key Settings:"/>
+            android:text="Key Settings:"
+            android:background="#77AAFF"/>
+
+	<ScrollView
+			android:layout_width="fill_parent"
+    		android:layout_height="wrap_content">
   
-    <Button id="@+id/button_jump" 
-            android:layout_width="100px" 
-            android:layout_height="wrap_content" 
-            android:text="@string/settings_button_label_jump" />
+		<TableLayout
+				android:layout_width="fill_parent" 
+            	android:layout_height="fill_parent"
+            	android:stretchColumns="0,1">
             
-    <Button id="@+id/button_left" 
-            android:layout_width="100px" 
-            android:layout_height="wrap_content" 
-            android:text="@string/settings_button_label_left" />
-            
-    <Button id="@+id/button_right" 
-            android:layout_width="100px" 
-            android:layout_height="wrap_content" 
-            android:text="@string/settings_button_label_right" />
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="Action"
+            			android:textStyle="bold" />
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="Assigned Key"
+            			android:textStyle="bold" />
+        	</TableRow>
+        	
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="JUMP"/>
+        		<TextView id="@+id/text_assignment_jump"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="" />
+            	<Button id="@+id/button_jump" 
+	            		android:layout_width="wrap_content" 
+	            		android:layout_height="wrap_content" 
+	            		android:text="@string/settings_button_label" />
+        	</TableRow>
+        	
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="MOVE LEFT"/>
+        		<TextView id="@+id/text_assignment_left"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="" />
+            	<Button id="@+id/button_left" 
+	            		android:layout_width="wrap_content" 
+	            		android:layout_height="wrap_content" 
+	            		android:text="@string/settings_button_label" />
+        	</TableRow>
+        	
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="MOVE RIGHT"/>
+        		<TextView id="@+id/text_assignment_right"
+        				android:layout_width="wrap_content"
+            			android:layout_height="wrap_content" 
+            			android:text="" />
+            	<Button id="@+id/button_right" 
+	            		android:layout_width="wrap_content" 
+	            		android:layout_height="wrap_content" 
+	            		android:text="@string/settings_button_label" />
+        	</TableRow>
+        	
+		</TableLayout>
+	</ScrollView>
 
 </LinearLayout>

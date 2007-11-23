@@ -10,6 +10,7 @@
     <string name="menu_label_credits">Credits</string>
     <string name="menu_label_close">Close</string>
     
+    <string name="settings_button_label">Change</string>
     <string name="settings_button_label_jump">JUMP</string>
     <string name="settings_button_label_right">RIGHT</string>
     <string name="settings_button_label_left">LEFT</string>

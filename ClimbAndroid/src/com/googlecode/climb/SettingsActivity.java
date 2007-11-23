@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 
 public class SettingsActivity extends Activity implements OnClickListener
@@ -31,7 +32,13 @@ public class SettingsActivity extends Activity implements OnClickListener
 
     private Button rightButton;
 
-    private Button currentSelectedButton = null;
+    private String currentSelectedKey = null;
+
+    private TextView jumpAssignment;
+
+    private TextView leftAssignment;
+
+    private TextView rightAssignment;
 
     /**
      * Called when the activity is first created.
@@ -51,6 +58,23 @@ public class SettingsActivity extends Activity implements OnClickListener
         this.jumpButton.setOnClickListener(this);
         this.leftButton.setOnClickListener(this);
         this.rightButton.setOnClickListener(this);
+
+        final SharedPreferences prefs = getSharedPreferences(
+                SettingsActivity.KEY_SETTINGS, Context.MODE_PRIVATE);
+        final String jumpKeyString = KeyId2String.map(prefs.getInt(
+                JUMP_KEY_SETTING, KeyEvent.KEYCODE_1));
+        final String leftKeyString = KeyId2String.map(prefs.getInt(
+                LEFT_KEY_SETTING, KeyEvent.KEYCODE_DPAD_LEFT));
+        final String rightKeyString = KeyId2String.map(prefs.getInt(
+                RIGHT_KEY_SETTING, KeyEvent.KEYCODE_DPAD_RIGHT));
+
+        this.jumpAssignment = (TextView) findViewById(R.id.text_assignment_jump);
+        this.leftAssignment = (TextView) findViewById(R.id.text_assignment_left);
+        this.rightAssignment = (TextView) findViewById(R.id.text_assignment_right);
+
+        this.jumpAssignment.setText(jumpKeyString);
+        this.leftAssignment.setText(leftKeyString);
+        this.rightAssignment.setText(rightKeyString);
     }
 
     /**
@@ -76,8 +100,18 @@ public class SettingsActivity extends Activity implements OnClickListener
     {
         final Button clickedButton = (Button) clickedView;
 
-        clickedButton.setText(R.string.settings_button_label_press);
-        this.currentSelectedButton = clickedButton;
+        if (clickedButton == this.jumpButton) {
+            this.currentSelectedKey = JUMP_KEY_SETTING;
+            this.jumpAssignment.setText(R.string.settings_button_label_press);
+        }
+        if (clickedButton == this.leftButton) {
+            this.currentSelectedKey = LEFT_KEY_SETTING;
+            this.leftAssignment.setText(R.string.settings_button_label_press);
+        }
+        if (clickedButton == this.rightButton) {
+            this.currentSelectedKey = RIGHT_KEY_SETTING;
+            this.rightAssignment.setText(R.string.settings_button_label_press);
+        }
 
         this.jumpButton.setFocusable(false);
         this.leftButton.setFocusable(false);
@@ -93,21 +127,21 @@ public class SettingsActivity extends Activity implements OnClickListener
         final SharedPreferences prefs = getSharedPreferences(
                 SettingsActivity.KEY_SETTINGS, Context.MODE_PRIVATE);
 
-        if (this.currentSelectedButton == this.jumpButton) {
+        if (this.currentSelectedKey == JUMP_KEY_SETTING) {
             Log.i(SettingsActivity.LOG_TAG, "Setting jump key to id: " + id);
             prefs.edit().putInt(SettingsActivity.JUMP_KEY_SETTING, id).commit();
-            this.jumpButton.setText(R.string.settings_button_label_jump);
-        } else if (this.currentSelectedButton == this.leftButton) {
+            this.jumpAssignment.setText(KeyId2String.map(id));
+        } else if (this.currentSelectedKey == LEFT_KEY_SETTING) {
             Log.i(SettingsActivity.LOG_TAG, "Setting left key to id: " + id);
             prefs.edit().putInt(SettingsActivity.LEFT_KEY_SETTING, id).commit();
-            this.leftButton.setText(R.string.settings_button_label_left);
-        } else if (this.currentSelectedButton == this.rightButton) {
+            this.leftAssignment.setText(KeyId2String.map(id));
+        } else if (this.currentSelectedKey == RIGHT_KEY_SETTING) {
             Log.i(SettingsActivity.LOG_TAG, "Setting right key to id: " + id);
             prefs.edit().putInt(SettingsActivity.RIGHT_KEY_SETTING, id).commit();
-            this.rightButton.setText(R.string.settings_button_label_right);
+            this.rightAssignment.setText(KeyId2String.map(id));
         }
 
-        this.currentSelectedButton = null;
+        this.currentSelectedKey = null;
 
         this.jumpButton.setFocusable(true);
         this.leftButton.setFocusable(true);
