@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <TextView 
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content" 
+            android:text="Highscore:"
+            android:background="#77AAFF"/>
+
+	<ScrollView
+			android:layout_width="fill_parent"
+    		android:layout_height="wrap_content">
+  
+		<TableLayout
+				android:layout_width="fill_parent" 
+            	android:layout_height="fill_parent"
+            	android:stretchColumns="0,1,2">
+            
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text=""
+            			android:textStyle="bold" />
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="@string/highscore_header_name"
+            			android:textStyle="bold" />
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="@string/highscore_header_score"
+            			android:textStyle="bold" />
+          		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="@string/highscore_header_platform"
+            			android:textStyle="bold" />
+        	</TableRow>
+        	
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="1"/>
+        		<TextView id="@+id/highscore_1_name"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="Max" />
+            	<TextView id="@+id/highscore_1_score"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="10000" />
+            	<TextView id="@+id/highscore_1_platform"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="250" />
+        	</TableRow>
+        	
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="2"/>
+        		<TextView id="@+id/highscore_2_name"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="Jack" />
+            	<TextView id="@+id/highscore_2_score"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="7000" />
+            	<TextView id="@+id/highscore_2_platform"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="300" />
+        	</TableRow>
+        	
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="3"/>
+        		<TextView id="@+id/highscore_3_name"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="Charlie" />
+            	<TextView id="@+id/highscore_3_score"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="3000" />
+            	<TextView id="@+id/highscore_3_platform"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="200" />
+        	</TableRow>
+        	
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="4"/>
+        		<TextView id="@+id/highscore_4_name"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="James" />
+            	<TextView id="@+id/highscore_4_score"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="1000" />
+            	<TextView id="@+id/highscore_4_platform"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="100" />
+        	</TableRow>
+        	
+        	<TableRow>
+        		<TextView
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="5"/>
+        		<TextView id="@+id/highscore_5_name"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="John" />
+            	<TextView id="@+id/highscore_5_score"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="500" />
+            	<TextView id="@+id/highscore_5_platform"
+        				android:layout_width="wrap_content" 
+            			android:layout_height="wrap_content" 
+            			android:text="100" />
+        	</TableRow>
+        	
+		</TableLayout>
+	</ScrollView>
+
+</LinearLayout>
