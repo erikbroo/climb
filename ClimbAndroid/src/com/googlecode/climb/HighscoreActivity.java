@@ -166,7 +166,6 @@ public class HighscoreActivity extends Activity
                 nameView.setSingleLine();
                 nameView.requestFocus();
                 nameView.setSelection(0, 10);
-                nameView.setBackgroundColor(Color.rgb(200, 255, 255));
                 this.newScoreInput = nameView;
             } else {
                 nameView.setBackgroundColor(Color.rgb(255, 255, 255));
