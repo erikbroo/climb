@@ -9,6 +9,7 @@
     <string name="menu_label_help">Help</string>
     <string name="menu_label_credits">Credits</string>
     <string name="menu_label_close">Close</string>
+    <string name="menu_label_pause">Pause</string>
     
     <string name="settings_button_label">Change</string>
     <string name="settings_button_label_jump">JUMP</string>

@@ -354,13 +354,6 @@ public final class Game extends View implements SpotEventListener, KeyEngine
     }
 
     /**
-     * 
-     */
-    public void forceQuit()
-    {
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override

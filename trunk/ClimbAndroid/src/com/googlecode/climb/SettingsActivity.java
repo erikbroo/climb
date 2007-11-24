@@ -26,6 +26,8 @@ public class SettingsActivity extends Activity implements OnClickListener
 
     private static final String LOG_TAG = "SettingsActivity";
 
+    private SharedPreferences prefs;
+
     private Button jumpButton;
 
     private Button leftButton;
@@ -51,6 +53,9 @@ public class SettingsActivity extends Activity implements OnClickListener
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.settings_layout);
 
+        this.prefs = getSharedPreferences(SettingsActivity.KEY_SETTINGS,
+                Context.MODE_PRIVATE);
+
         this.jumpButton = (Button) findViewById(R.id.button_jump);
         this.leftButton = (Button) findViewById(R.id.button_left);
         this.rightButton = (Button) findViewById(R.id.button_right);
@@ -59,13 +64,11 @@ public class SettingsActivity extends Activity implements OnClickListener
         this.leftButton.setOnClickListener(this);
         this.rightButton.setOnClickListener(this);
 
-        final SharedPreferences prefs = getSharedPreferences(
-                SettingsActivity.KEY_SETTINGS, Context.MODE_PRIVATE);
-        final String jumpKeyString = KeyId2String.map(prefs.getInt(
+        final String jumpKeyString = KeyId2String.map(this.prefs.getInt(
                 JUMP_KEY_SETTING, KeyEvent.KEYCODE_1));
-        final String leftKeyString = KeyId2String.map(prefs.getInt(
+        final String leftKeyString = KeyId2String.map(this.prefs.getInt(
                 LEFT_KEY_SETTING, KeyEvent.KEYCODE_DPAD_LEFT));
-        final String rightKeyString = KeyId2String.map(prefs.getInt(
+        final String rightKeyString = KeyId2String.map(this.prefs.getInt(
                 RIGHT_KEY_SETTING, KeyEvent.KEYCODE_DPAD_RIGHT));
 
         this.jumpAssignment = (TextView) findViewById(R.id.text_assignment_jump);
@@ -124,20 +127,19 @@ public class SettingsActivity extends Activity implements OnClickListener
     @Override
     public boolean onKeyDown(int id, KeyEvent event)
     {
-        final SharedPreferences prefs = getSharedPreferences(
-                SettingsActivity.KEY_SETTINGS, Context.MODE_PRIVATE);
+        super.onKeyDown(id, event);
 
         if (this.currentSelectedKey == JUMP_KEY_SETTING) {
             Log.i(SettingsActivity.LOG_TAG, "Setting jump key to id: " + id);
-            prefs.edit().putInt(SettingsActivity.JUMP_KEY_SETTING, id).commit();
+            this.prefs.edit().putInt(SettingsActivity.JUMP_KEY_SETTING, id).commit();
             this.jumpAssignment.setText(KeyId2String.map(id));
         } else if (this.currentSelectedKey == LEFT_KEY_SETTING) {
             Log.i(SettingsActivity.LOG_TAG, "Setting left key to id: " + id);
-            prefs.edit().putInt(SettingsActivity.LEFT_KEY_SETTING, id).commit();
+            this.prefs.edit().putInt(SettingsActivity.LEFT_KEY_SETTING, id).commit();
             this.leftAssignment.setText(KeyId2String.map(id));
         } else if (this.currentSelectedKey == RIGHT_KEY_SETTING) {
             Log.i(SettingsActivity.LOG_TAG, "Setting right key to id: " + id);
-            prefs.edit().putInt(SettingsActivity.RIGHT_KEY_SETTING, id).commit();
+            this.prefs.edit().putInt(SettingsActivity.RIGHT_KEY_SETTING, id).commit();
             this.rightAssignment.setText(KeyId2String.map(id));
         }
 

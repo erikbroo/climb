@@ -127,6 +127,21 @@ public class MainActivity extends Activity
     {
         final Intent intent = new Intent();
         intent.setClass(this, HighscoreActivity.class);
+        intent.setAction(HighscoreActivity.VIEW_INTENT_ACTION);
+        startSubActivity(intent, MainActivity.SUBACT_HIGHSCORE);
+    }
+
+    /**
+     * Starts the highscore as a subactivity and lets it check if a new
+     * highscore is achieved with the specified values.
+     */
+    private void checkHighscore(Integer score, Integer platform)
+    {
+        final Intent intent = new Intent();
+        intent.setClass(this, HighscoreActivity.class);
+        intent.setAction(HighscoreActivity.CHECK_INTENT_ACTION);
+        intent.putExtra(HighscoreActivity.SCORE_INTENT_EXTRA, score);
+        intent.putExtra(HighscoreActivity.PLATFORM_INTENT_EXTRA, platform);
         startSubActivity(intent, MainActivity.SUBACT_HIGHSCORE);
     }
 
@@ -139,7 +154,11 @@ public class MainActivity extends Activity
     {
         switch (requestCode) {
             case SUBACT_GAME:
-                // startHighscore();
+                if (resultCode == Activity.RESULT_OK) {
+                    final Integer score = extras.getInteger(GameActivity.RESULT_SCORE);
+                    final Integer platform = extras.getInteger(GameActivity.RESULT_PLATFORM);
+                    checkHighscore(score, platform);
+                }
                 break;
             default:
                 break;
