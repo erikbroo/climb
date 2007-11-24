@@ -1,10 +1,12 @@
 package com.googlecode.climb;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.Window;
@@ -44,25 +46,25 @@ public class HighscoreActivity extends Activity
     public static final String PLATFORM_INTENT_EXTRA = "com.googlecode.climb.highscore.extra.platform";
 
     /**
-     * A constant key for the shared prefs, which stores highscore entries. You
+     * A constant key for the preferences, which stores highscore entries. You
      * must append a number to this constant to receive the real key. The number
      * will denote the row of the highscore table.
      */
-    private static final String SHAREDPREF_NAME = "climb.highscore.sharedpref.name";
+    private static final String PREFERENCES_NAME = "climb.highscore.sharedpref.name";
 
     /**
-     * A constant key for the shared prefs, which stores highscore entries. You
+     * A constant key for the preferences, which stores highscore entries. You
      * must append a number to this constant to receive the real key. The number
      * will denote the row of the highscore table.
      */
-    private static final String SHAREDPREF_SCORE = "climb.highscore.sharedpref.score";
+    private static final String PREFERENCES_SCORE = "climb.highscore.sharedpref.score";
 
     /**
-     * A constant key for the shared prefs, which stores highscore entries. You
+     * A constant key for the preferences, which stores highscore entries. You
      * must append a number to this constant to receive the real key. The number
      * will denote the row of the highscore table.
      */
-    private static final String SHAREDPREF_PLATFORM = "climb.highscore.sharedpref.platform";
+    private static final String PREFERENCES_PLATFORM = "climb.highscore.sharedpref.platform";
 
     /**
      * Number of highscore entries
@@ -87,10 +89,10 @@ public class HighscoreActivity extends Activity
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        this.prefs = getSharedPreferences(SettingsActivity.KEY_SETTINGS,
-                Context.MODE_PRIVATE);
+        this.prefs = getPreferences(Context.MODE_PRIVATE);
         this.prefsEditor = this.prefs.edit();
 
+        boolean newScore = false;
         if (CHECK_INTENT_ACTION.equals(getIntent().getAction())) {
             final Integer score = (Integer) getIntent().getExtra(
                     SCORE_INTENT_EXTRA);
@@ -100,8 +102,7 @@ public class HighscoreActivity extends Activity
                 throw new RuntimeException("Missing arguments for HighscoreActivity CHECK Action");
             }
 
-            final boolean newScore = checkNewScore(score.intValue(),
-                    platform.intValue());
+            newScore = checkNewScore(score.intValue(), platform.intValue());
 
             if (!newScore) {
                 setResult(RESULT_CANCELED);
@@ -112,6 +113,17 @@ public class HighscoreActivity extends Activity
 
         setContentView(R.layout.highscore_layout);
         fillHighscoreTable();
+
+        if (this.newScoreAt > 0) {
+            new Handler().post(new Runnable() { // handler is a workaround
+                @Override
+                public void run()
+                {
+                    AlertDialog.show(HighscoreActivity.this, "",
+                            "New Highscore", "Enter Name", false);
+                }
+            });
+        }
     }
 
     /**
@@ -126,11 +138,14 @@ public class HighscoreActivity extends Activity
             return;
         }
         String newName = this.newScoreInput.getText().toString();
+        if (newName.equals("enter name")) {
+            newName = "unknown";
+        }
         if (newName.length() > 15) {
             newName = newName.substring(0, 13) + "...";
         }
 
-        this.prefsEditor.putString(SHAREDPREF_NAME + this.newScoreAt, newName);
+        this.prefsEditor.putString(PREFERENCES_NAME + this.newScoreAt, newName);
         this.prefsEditor.commit();
     }
 
@@ -144,12 +159,12 @@ public class HighscoreActivity extends Activity
         final int numberOfRows = highscoreTable.getChildCount();
         // the first row is the header
         for (int entry = 1; entry < numberOfRows; entry++) {
-            final String name = this.prefs.getString(SHAREDPREF_NAME + entry,
+            final String name = this.prefs.getString(PREFERENCES_NAME + entry,
                     defaultName(entry));
-            final int score = this.prefs.getInt(SHAREDPREF_SCORE + entry,
+            final int score = this.prefs.getInt(PREFERENCES_SCORE + entry,
                     defaultScore(entry));
-            final int platform = this.prefs.getInt(SHAREDPREF_PLATFORM + entry,
-                    0);
+            final int platform = this.prefs.getInt(
+                    PREFERENCES_PLATFORM + entry, 0);
 
             final TableRow row = (TableRow) highscoreTable.getChildAt(entry);
             final EditText nameView = (EditText) row.getChildAt(1);
@@ -169,6 +184,7 @@ public class HighscoreActivity extends Activity
                 this.newScoreInput = nameView;
             } else {
                 nameView.setBackgroundColor(Color.rgb(255, 255, 255));
+                nameView.setCursorVisible(false);
                 nameView.setInputMethod(null);
             }
         }
@@ -200,7 +216,7 @@ public class HighscoreActivity extends Activity
      */
     private int defaultScore(int i)
     {
-        return 6 * 250 - i * 250;
+        return 6 * 50 - i * 50;
     }
 
     /**
@@ -221,27 +237,27 @@ public class HighscoreActivity extends Activity
         final int numberOfEntries = HIGHSCORE_ENTRIES;
 
         for (int entry = numberOfEntries; entry >= 1; entry--) {
-            final String name = this.prefs.getString(SHAREDPREF_NAME + entry,
+            final String name = this.prefs.getString(PREFERENCES_NAME + entry,
                     defaultName(entry));
-            final int score = this.prefs.getInt(SHAREDPREF_SCORE + entry,
+            final int score = this.prefs.getInt(PREFERENCES_SCORE + entry,
                     defaultScore(entry));
-            final int platform = this.prefs.getInt(SHAREDPREF_PLATFORM + entry,
-                    0);
+            final int platform = this.prefs.getInt(
+                    PREFERENCES_PLATFORM + entry, 0);
 
             Log.d(LOG_TAG, "entry " + entry + " stored score: " + score);
             if (newScore > score) {
                 if (entry < 5) {
-                    this.prefsEditor.putString(SHAREDPREF_NAME + (entry + 1),
+                    this.prefsEditor.putString(PREFERENCES_NAME + (entry + 1),
                             name);
-                    this.prefsEditor.putInt(SHAREDPREF_SCORE + (entry + 1),
+                    this.prefsEditor.putInt(PREFERENCES_SCORE + (entry + 1),
                             score);
-                    this.prefsEditor.putInt(SHAREDPREF_PLATFORM + (entry + 1),
+                    this.prefsEditor.putInt(PREFERENCES_PLATFORM + (entry + 1),
                             platform);
                 }
                 this.newScoreAt = entry;
-                this.prefsEditor.putString(SHAREDPREF_NAME + entry, "unknown");
-                this.prefsEditor.putInt(SHAREDPREF_SCORE + entry, newScore);
-                this.prefsEditor.putInt(SHAREDPREF_PLATFORM + entry,
+                this.prefsEditor.putString(PREFERENCES_NAME + entry, "unknown");
+                this.prefsEditor.putInt(PREFERENCES_SCORE + entry, newScore);
+                this.prefsEditor.putInt(PREFERENCES_PLATFORM + entry,
                         newPlatform);
             } else if (entry == numberOfEntries) { // no new score
                 Log.i(LOG_TAG, "no new score");

@@ -30,8 +30,7 @@
         				android:layout_width="wrap_content" 
             			android:layout_height="wrap_content" 
             			android:text="@string/highscore_header_name"
-            			android:textStyle="bold"
-            			android:textAlign="center" />
+            			android:textStyle="bold" />
         		<TextView
         				android:layout_width="wrap_content" 
             			android:layout_height="wrap_content" 
