@@ -15,9 +15,9 @@ import com.googlecode.climb.game.Game;
  */
 public class GameActivity extends Activity
 {
-    private static final String RESULT_SCORE = "Score";
+    public static final String RESULT_SCORE = "Score";
 
-    private static final String RESULT_PLATFORM = "Platform";
+    public static final String RESULT_PLATFORM = "Platform";
 
     private Game game;
 
@@ -72,7 +72,7 @@ public class GameActivity extends Activity
         final boolean result = super.onCreateOptionsMenu(menu);
         int resourceID;
 
-        resourceID = R.string.menu_label_close;
+        resourceID = R.string.menu_label_pause;
         menu.add(0, 0, resourceID, new MenuActionListener(resourceID));
 
         return result;
@@ -91,11 +91,7 @@ public class GameActivity extends Activity
         public void run()
         {
             switch (this.id) {
-                case R.string.menu_label_close:
-                    GameActivity.this.game.forceQuit();
-                    GameActivity.this.game = null;
-                    GameActivity.this.setResult(Activity.RESULT_CANCELED);
-                    GameActivity.this.finish();
+                case R.string.menu_label_pause:
                     break;
             }
         }
