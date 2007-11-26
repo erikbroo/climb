@@ -104,7 +104,7 @@ final class ComboMeter implements SpotEventListener
 
     private int lastPlatform;
 
-    private int multiplicator = 1;
+    private int multiplicator = 0;
 
     private float barSize = 0.0f;
 
@@ -445,8 +445,8 @@ final class ComboMeter implements SpotEventListener
             this.popup.registerComboString("same catty (+15)",
                     this.lastPlatform);
         } else {
-            this.multiplicator += 4;
-            this.popup.registerComboString("catty (+4)", this.lastPlatform);
+            this.multiplicator += 6;
+            this.popup.registerComboString("catty (+6)", this.lastPlatform);
         }
 
         this.lastPlatform = getPlatform(9);
@@ -520,7 +520,7 @@ final class ComboMeter implements SpotEventListener
             if (this.barSize > 0) {
                 this.barSize = Math.max(this.barSize - 0.02f, 0);
                 if (this.barSize == 0) {
-                    this.multiplicator = 1;
+                    this.multiplicator = 0;
                 }
             }
         }

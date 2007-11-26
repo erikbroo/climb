@@ -150,6 +150,18 @@ public class HighscoreActivity extends Activity
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        if (this.newScoreInput != null) {
+            this.newScoreInput.requestFocus();
+        }
+    }
+
+    /**
      * Fills the highscore table view with the stored values.
      */
     private void fillHighscoreTable()

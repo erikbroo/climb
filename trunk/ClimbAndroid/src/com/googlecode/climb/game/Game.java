@@ -224,6 +224,11 @@ public final class Game extends View implements SpotEventListener, KeyEngine
         }
     }
 
+    public final boolean isPaused()
+    {
+        return this.gameState == GAMESTATE_PAUSED;
+    }
+
     /**
      * Callback method. {@inheritDoc}
      */
@@ -280,8 +285,8 @@ public final class Game extends View implements SpotEventListener, KeyEngine
                 this.spot.getPosition().add(0, -1);
                 break;
             case GAMESTATE_FINISHING:
-                this.activity.onGameFinished();
                 this.gameState = Game.GAMESTATE_FINISHED;
+                this.activity.onGameFinished();
                 return;
             case GAMESTATE_FINISHED:
                 return;
