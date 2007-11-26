@@ -19,10 +19,31 @@ public class GameActivity extends Activity
 
     public static final String RESULT_PLATFORM = "Platform";
 
+    // private final OnClickListener resumeButtonListener = new
+    // OnClickListener() {
+    // @Override
+    // public void onClick(DialogInterface dialog, int arg)
+    // {
+    // if ((GameActivity.this.game != null)
+    // && GameActivity.this.game.isPaused()) {
+    // GameActivity.this.game.resumeGameLogic();
+    // }
+    // }
+    // };
+    //
+    // private final Runnable resumeHandler = new Runnable() {
+    // @Override
+    // public void run()
+    // {
+    // AlertDialog.show(GameActivity.this, "", "Game Paused", "Resume",
+    // GameActivity.this.resumeButtonListener, false, null);
+    // }
+    // };
+
     private Game game;
 
     /**
-     * Callback method. {@inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public void onCreate(final Bundle icicle)
@@ -48,6 +69,35 @@ public class GameActivity extends Activity
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        if (this.game != null) {
+            this.game.pauseGameLogic();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        if ((this.game == null) || !this.game.isPaused()) {
+            return;
+        }
+
+        // new Handler().post(this.resumeHandler);
+        this.game.resumeGameLogic();
+    }
+
+    /**
      * Callback method. Called by the game, when it is finished.
      */
     public void onGameFinished()
@@ -59,7 +109,6 @@ public class GameActivity extends Activity
         result.putInteger(GameActivity.RESULT_SCORE, score);
         result.putInteger(GameActivity.RESULT_PLATFORM, platform);
         setResult(Activity.RESULT_OK, null, result);
-        this.game = null;
         finish();
     }
 
@@ -70,10 +119,10 @@ public class GameActivity extends Activity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         final boolean result = super.onCreateOptionsMenu(menu);
-        int resourceID;
+        final int resourceID;
 
-        resourceID = R.string.menu_label_pause;
-        menu.add(0, 0, resourceID, new MenuActionListener(resourceID));
+        // resourceID = R.string.menu_label_pause;
+        // menu.add(0, 0, resourceID, new MenuActionListener(resourceID));
 
         return result;
     }
@@ -92,6 +141,9 @@ public class GameActivity extends Activity
         {
             switch (this.id) {
                 case R.string.menu_label_pause:
+                    // if (GameActivity.this.game != null) {
+                    // game.pauseGameLogic();
+                    // }
                     break;
             }
         }
