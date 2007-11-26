@@ -512,8 +512,9 @@ final class ComboMeter implements SpotEventListener
     // t = 5;
     // }
 
-    final void doUpdate(long thisUpdate)
+    final void doUpdate()
     {
+        final long thisUpdate = System.currentTimeMillis();
         if (thisUpdate - this.lastUpdate > 100) { // 100 msec
             this.lastUpdate += 100;
 

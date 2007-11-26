@@ -1,15 +1,14 @@
 package com.googlecode.climb.game;
 
-import android.content.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import com.googlecode.climb.R;
-import com.googlecode.climb.game.utils.Sprite;
-import com.googlecode.climb.game.utils.Vector2;
+import com.googlecode.saga.GameEngine;
+import com.googlecode.saga.Sprite;
+import com.googlecode.saga.Vector2;
 
 
 final class Water
@@ -41,12 +40,11 @@ final class Water
 
     private boolean waterRiseToggle;
 
-    Water(Resources resources, PlatformLayer platformLayer)
+    Water(GameEngine engine, PlatformLayer platformLayer)
     {
         this.platformLayer = platformLayer;
         this.position = new Vector2(0, 10, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT, this.platformLayer);
-        final Bitmap waveBitmap = BitmapFactory.decodeResource(resources,
-                R.drawable.waterwaves);
+        final Bitmap waveBitmap = engine.getBitmap(R.drawable.waterwaves);
         this.waveSprite = new Sprite(waveBitmap, 176, 5);
     }
 

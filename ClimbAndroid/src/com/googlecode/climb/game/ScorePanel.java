@@ -188,12 +188,9 @@ final class ScorePanel implements SpotEventListener
         this.lastUpdate = System.currentTimeMillis();
     }
 
-    final void doUpdate(long thisUpdate)
+    final void doUpdate()
     {
-        // Log.v(LOG_TAG, "doUpdate() last update: " + this.lastUpdate);
-        // Log.v(LOG_TAG, "doUpdate() this update: " + thisUpdate);
-        // Log.v(LOG_TAG, "doUpdate() elapsed time: "
-        // + (thisUpdate - this.lastUpdate));
+        final long thisUpdate = System.currentTimeMillis();
 
         if (thisUpdate - this.lastUpdate > 1000) { // 1 sec
             this.currentTimer--;

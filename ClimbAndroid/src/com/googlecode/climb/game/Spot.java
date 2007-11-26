@@ -1,15 +1,13 @@
 package com.googlecode.climb.game;
 
 import java.util.LinkedList;
-import android.content.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import com.googlecode.climb.R;
-import com.googlecode.climb.game.utils.Sprite;
-import com.googlecode.climb.game.utils.Vector2;
+import com.googlecode.saga.Sprite;
+import com.googlecode.saga.Vector2;
 
 
 /**
@@ -72,21 +70,20 @@ final class Spot
 
     private final PlatformLayer platformLayer;
 
-    private final KeyEngine keyEngine;
-
     private final LinkedList<SpotEventListener> eventListeners = new LinkedList<SpotEventListener>();
 
     private int lastTouchedPlatform;
 
     private int highestTouchedPlatform;
 
-    Spot(PlatformLayer platformLayer, Resources resources, KeyEngine keyEngine)
+    private final ClimbKeyEngine keyEngine;
+
+    Spot(PlatformLayer platformLayer, Game engine)
     {
         this.platformLayer = platformLayer;
-        this.keyEngine = keyEngine;
+        this.keyEngine = engine;
         this.position = platformLayer.newVector(START_XPOS, START_YPOS);
-        final Bitmap spotBitmap = BitmapFactory.decodeResource(resources,
-                R.drawable.spot);
+        final Bitmap spotBitmap = engine.getBitmap(R.drawable.spot);
         this.spotSprite = new Sprite(spotBitmap, Spot.SPOT_DIAMETER, Spot.SPOT_DIAMETER);
         this.spotAnimation = new SpotAnimation(this.spotSprite);
 

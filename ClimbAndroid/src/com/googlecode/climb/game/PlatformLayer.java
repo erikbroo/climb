@@ -1,14 +1,13 @@
 package com.googlecode.climb.game;
 
-import android.content.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import com.googlecode.climb.R;
-import com.googlecode.climb.game.utils.ParallaxLayer;
+import com.googlecode.saga.GameEngine;
+import com.googlecode.saga.ParallaxLayer;
 
 
 /**
@@ -44,26 +43,19 @@ final class PlatformLayer extends ParallaxLayer
 
     private final PlatformSequence platformSequence;
 
-    PlatformLayer(Resources resources)
+    PlatformLayer(GameEngine engine)
     {
         super(PlatformLayer.PlatformLayer_DEPTH, Game.VIRTUAL_CANVAS_WIDTH, Game.VIRTUAL_CANVAS_HEIGHT);
 
         this.platformSequence = new PlatformSequence(this);
 
-        this.platform_30_image = BitmapFactory.decodeResource(resources,
-                R.drawable.platform_30);
-        this.platform_50_image = BitmapFactory.decodeResource(resources,
-                R.drawable.platform_50);
-        this.platform_70_image = BitmapFactory.decodeResource(resources,
-                R.drawable.platform_70);
-        this.platform_full_image = BitmapFactory.decodeResource(resources,
-                R.drawable.platform_full);
-        this.woodsign_small_image = BitmapFactory.decodeResource(resources,
-                R.drawable.woodshield_small);
-        this.woodsign_medium_image = BitmapFactory.decodeResource(resources,
-                R.drawable.woodshield_med);
-        this.woodsign_large_image = BitmapFactory.decodeResource(resources,
-                R.drawable.woodshield_big);
+        this.platform_30_image = engine.getBitmap(R.drawable.platform_30);
+        this.platform_50_image = engine.getBitmap(R.drawable.platform_50);
+        this.platform_70_image = engine.getBitmap(R.drawable.platform_70);
+        this.platform_full_image = engine.getBitmap(R.drawable.platform_full);
+        this.woodsign_small_image = engine.getBitmap(R.drawable.woodshield_small);
+        this.woodsign_medium_image = engine.getBitmap(R.drawable.woodshield_med);
+        this.woodsign_large_image = engine.getBitmap(R.drawable.woodshield_big);
     }
 
     final void doDraw(Canvas canvas)

@@ -120,7 +120,7 @@ public class HighscoreActivity extends Activity
                 public void run()
                 {
                     AlertDialog.show(HighscoreActivity.this, "",
-                            "New Highscore", "Enter Name", false);
+                            "New Highscore", "Enter Name", true);
                 }
             });
         }
