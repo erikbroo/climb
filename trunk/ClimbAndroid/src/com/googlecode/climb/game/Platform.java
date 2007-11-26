@@ -1,6 +1,6 @@
 package com.googlecode.climb.game;
 
-import com.googlecode.climb.game.utils.Vector2;
+import com.googlecode.saga.Vector2;
 
 
 /**

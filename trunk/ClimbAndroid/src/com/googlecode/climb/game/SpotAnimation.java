@@ -1,6 +1,6 @@
 package com.googlecode.climb.game;
 
-import com.googlecode.climb.game.utils.Sprite;
+import com.googlecode.saga.Sprite;
 
 
 /**

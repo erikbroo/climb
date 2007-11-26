@@ -6,14 +6,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.Window;
 import com.googlecode.climb.game.Game;
+import com.googlecode.saga.GameEngineActivity;
 
 
 /**
  * 
  */
-public class GameActivity extends Activity
+public class GameActivity extends GameEngineActivity
 {
     public static final String RESULT_SCORE = "Score";
 
@@ -50,10 +50,6 @@ public class GameActivity extends Activity
     {
         super.onCreate(icicle);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        setContentView(R.layout.game_layout);
-
         final SharedPreferences prefs = getSharedPreferences(
                 SettingsActivity.KEY_SETTINGS, Context.MODE_PRIVATE);
         final int keyJump = prefs.getInt(SettingsActivity.JUMP_KEY_SETTING,
@@ -63,7 +59,7 @@ public class GameActivity extends Activity
         final int keyRight = prefs.getInt(SettingsActivity.RIGHT_KEY_SETTING,
                 KeyEvent.KEYCODE_DPAD_RIGHT);
 
-        this.game = (Game) findViewById(R.id.game_view);
+        this.game = new Game(this);
         this.game.setKeys(keyJump, keyLeft, keyRight);
         this.game.startGameLogic(this);
     }

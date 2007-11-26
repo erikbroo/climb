@@ -1,21 +1,19 @@
 package com.googlecode.climb.game;
 
-import java.util.Map;
 import java.util.Random;
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import com.googlecode.climb.GameActivity;
+import com.googlecode.saga.GameEngine;
 
 
 /**
  * 
  */
-public final class Game extends View implements SpotEventListener, KeyEngine
+public final class Game extends GameEngine implements SpotEventListener,
+        ClimbKeyEngine
 {
     private static final String LOG_TAG = "Game";
 
@@ -33,7 +31,7 @@ public final class Game extends View implements SpotEventListener, KeyEngine
 
     private static final int GAMESTATE_FINISHED = 5;
 
-    private static final long LOGIC_UPDATE_RATE = 50; // 50 millisec
+    private static final int LOGIC_UPDATE_RATE = 5; // 20 ups = 50 millisec
 
     /**
      * Climb 2 assumes a rendering canvas height of 208 pixels. All logic and
@@ -67,12 +65,6 @@ public final class Game extends View implements SpotEventListener, KeyEngine
 
     private int keyMoveRight = KeyEvent.KEYCODE_DPAD_RIGHT;
 
-    private boolean pressedJumpKey = false;
-
-    private boolean pressedMoveLeftKey = false;
-
-    private boolean pressedMoveRightKey = false;
-
     private final World world;
 
     private final Spot spot;
@@ -91,26 +83,20 @@ public final class Game extends View implements SpotEventListener, KeyEngine
 
     private long lastLogicUpdate;
 
-    private GameActivity activity;
+    private final GameActivity activity;
 
-    /**
-     * I don't know what the arguments do, I need them for the super
-     * constructor. Fortunately an instance of this class is created for me
-     * automatically because of the game_layout.xml and the android manifest
-     * file.
-     * 
-     * @param context
-     * @param attrs
-     * @param inflateParams
-     * @param defStyle
-     */
-    public Game(Context context, AttributeSet attrs, Map inflateParams)
+    private boolean jumpKeyPressed;
+
+    private boolean moveLeftKeyPressed;
+
+    private boolean moveRightKeyPressed;
+
+    public Game(GameActivity activity)
     {
-        super(context, attrs, inflateParams);
+        super(VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT, LOGIC_UPDATE_RATE, activity);
 
-        setFocusable(true);
-
-        this.world = new World(getResources(), this);
+        this.activity = activity;
+        this.world = new World(this);
 
         final PlatformLayer platformLayer = this.world.getPlatformLayer();
         this.spot = this.world.getSpot();
@@ -131,43 +117,21 @@ public final class Game extends View implements SpotEventListener, KeyEngine
      * @param key
      */
     @Override
-    public void onSizeChanged(int w, int h, int oldW, int oldH)
+    public void onKeyDown(int keyCode)
     {
-        if ((w < Game.VIRTUAL_CANVAS_WIDTH) || (h < Game.VIRTUAL_CANVAS_HEIGHT)) {
-            throw new IllegalStateException("Climb cannot be played on a screen resolution < 176*208");
-        }
-
-        this.realScreenWidth = w;
-        this.realScreenHeight = h;
-        this.realScreenRatio = w / h;
-
-        invalidate();
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @param key
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
-        super.onKeyDown(keyCode, event);
+        super.onKeyDown(keyCode);
 
         if (this.gameState == Game.GAMESTATE_WAITING) {
             this.gameState = Game.GAMESTATE_RUNNING;
         }
 
         if (keyCode == this.keyJump) {
-            this.pressedJumpKey = true;
+            this.jumpKeyPressed = true;
+        } else if (keyCode == this.keyMoveLeft) {
+            this.moveLeftKeyPressed = true;
+        } else if (keyCode == this.keyMoveRight) {
+            this.moveRightKeyPressed = true;
         }
-        if (keyCode == this.keyMoveLeft) {
-            this.pressedMoveLeftKey = true;
-        }
-        if (keyCode == this.keyMoveRight) {
-            this.pressedMoveRightKey = true;
-        }
-        return false;
     }
 
     /**
@@ -176,20 +140,17 @@ public final class Game extends View implements SpotEventListener, KeyEngine
      * @param key
      */
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event)
+    public void onKeyUp(int keyCode)
     {
-        super.onKeyUp(keyCode, event);
+        super.onKeyUp(keyCode);
 
         if (keyCode == this.keyJump) {
-            this.pressedJumpKey = false;
+            this.jumpKeyPressed = false;
+        } else if (keyCode == this.keyMoveLeft) {
+            this.moveLeftKeyPressed = false;
+        } else if (keyCode == this.keyMoveRight) {
+            this.moveRightKeyPressed = false;
         }
-        if (keyCode == this.keyMoveLeft) {
-            this.pressedMoveLeftKey = false;
-        }
-        if (keyCode == this.keyMoveRight) {
-            this.pressedMoveRightKey = false;
-        }
-        return false;
     }
 
     public final void startGameLogic(GameActivity activity)
@@ -197,8 +158,6 @@ public final class Game extends View implements SpotEventListener, KeyEngine
         if (this.gameState != Game.GAMESTATE_WAITING) {
             throw new IllegalStateException();
         }
-
-        this.activity = activity;
 
         this.messagePopup.registerMSG("Go Go Go", Color.rgb(30, 255, 50));
         this.scorePanel.init();
@@ -211,7 +170,7 @@ public final class Game extends View implements SpotEventListener, KeyEngine
             this.gameState = Game.GAMESTATE_RUNNING;
             this.comboMeter.resume();
             this.scorePanel.resume();
-            invalidate();
+            // invalidate();
         }
     }
 
@@ -229,37 +188,17 @@ public final class Game extends View implements SpotEventListener, KeyEngine
         return this.gameState == GAMESTATE_PAUSED;
     }
 
-    /**
-     * Callback method. {@inheritDoc}
-     */
     @Override
-    public void onDraw(Canvas canvas)
+    protected void onUpdate()
     {
-        super.onDraw(canvas);
-
-        doUpdate();
-
-        doDraw(canvas);
-
-        invalidate();
-    }
-
-    private final void doUpdate()
-    {
-        final long thisUpdate = System.currentTimeMillis();
-        if (thisUpdate - this.lastLogicUpdate < Game.LOGIC_UPDATE_RATE) {
-            return;
-        }
-        this.lastLogicUpdate = thisUpdate;
-
         switch (this.gameState) {
             case GAMESTATE_WAITING:
                 return;
             case GAMESTATE_RUNNING:
 
-                this.world.doUpdate(thisUpdate);
-                this.scorePanel.doUpdate(thisUpdate);
-                this.comboMeter.doUpdate(thisUpdate);
+                this.world.doUpdate();
+                this.scorePanel.doUpdate();
+                this.comboMeter.doUpdate();
 
                 final int spotY = this.spot.getPosition().getVirtualScreenY();
                 final int waterY = this.water.getPosition().getVirtualScreenY();
@@ -296,13 +235,9 @@ public final class Game extends View implements SpotEventListener, KeyEngine
         }
     }
 
-    private final void doDraw(Canvas canvas)
+    @Override
+    protected final void onDraw(Canvas canvas)
     {
-        canvas.drawARGB(255, 0, 0, 0);
-
-        transformCanvas(canvas);
-        canvas.clipRect(0, 0, VIRTUAL_CANVAS_WIDTH, VIRTUAL_CANVAS_HEIGHT);
-
         this.world.doDraw(canvas);
         this.scorePanel.doDraw(canvas);
         this.comboMeter.doDraw(canvas);
@@ -395,7 +330,7 @@ public final class Game extends View implements SpotEventListener, KeyEngine
     @Override
     public final boolean isJumpPressed()
     {
-        return this.pressedJumpKey;
+        return this.jumpKeyPressed;
     }
 
     /**
@@ -404,7 +339,7 @@ public final class Game extends View implements SpotEventListener, KeyEngine
     @Override
     public final boolean isMoveLeftPressed()
     {
-        return this.pressedMoveLeftKey;
+        return this.moveLeftKeyPressed;
     }
 
     /**
@@ -413,7 +348,6 @@ public final class Game extends View implements SpotEventListener, KeyEngine
     @Override
     public final boolean isMoveRightPressed()
     {
-        return this.pressedMoveRightKey;
+        return this.moveRightKeyPressed;
     }
-
 }

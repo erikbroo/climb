@@ -1,8 +1,7 @@
 package com.googlecode.climb.game;
 
-import android.content.Resources;
 import android.graphics.Canvas;
-import com.googlecode.climb.game.utils.ParallaxManager;
+import com.googlecode.saga.ParallaxManager;
 
 
 final class World extends ParallaxManager
@@ -17,14 +16,14 @@ final class World extends ParallaxManager
 
     private final Water water;
 
-    World(Resources resources, KeyEngine keyEngine)
+    World(Game engine)
     {
-        this.platformLayer = new PlatformLayer(resources);
-        this.backgroundLayer = new BackgroundLayer(resources);
-        this.foregroundLayer = new ForegroundLayer(resources);
+        this.platformLayer = new PlatformLayer(engine);
+        this.backgroundLayer = new BackgroundLayer(engine);
+        this.foregroundLayer = new ForegroundLayer(engine);
 
-        this.water = new Water(resources, this.platformLayer);
-        this.spot = new Spot(this.platformLayer, resources, keyEngine);
+        this.water = new Water(engine, this.platformLayer);
+        this.spot = new Spot(this.platformLayer, engine);
 
         addParallaxLayer(this.platformLayer);
         addParallaxLayer(this.backgroundLayer);
@@ -40,7 +39,7 @@ final class World extends ParallaxManager
         this.foregroundLayer.doDraw(canvas);
     }
 
-    final void doUpdate(long thisUpdate)
+    final void doUpdate()
     {
         this.spot.doUpdate();
 
