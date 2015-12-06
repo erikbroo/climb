@@ -1,0 +1,1 @@
+This is the Climb game ported to Google's Android platform.
